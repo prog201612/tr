@@ -1,0 +1,33 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% load static %}
+{% block extrastyle %}
+  <link href="{% static 'css/menu.css'%}" rel="stylesheet">
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></h1>
+{% endblock %}
+
+{% block nav-global %}
+  <div id="right-panel">
+
+    <!-- INFORMES -->
+    <h6>INFORMES</h6>
+    <ul>
+      <li><a href="/atelier/sales-compare-years/">VENTAS ENTRE 2 AÑOS</a></li>
+    </ul>
+
+    {% if user.is_superuser %}
+      <!-- IMPORTAR -->
+      <h6>IMPORTAR</h6>
+      <ul>
+        <li><a href="/atelier/consumidor-to-csv/">CONSUMIDOR</a></li>
+        <li><a href="/atelier/pedido-to-csv/">PEDIDO</a></li>
+      </ul>
+    {% endif %}
+    
+  </div>
+{% endblock %}

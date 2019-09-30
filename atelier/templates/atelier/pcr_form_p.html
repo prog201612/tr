@@ -1,0 +1,32 @@
+{% extends "admin/base_site.html" %}
+
+{% load i18n l10n %}
+
+{% block content %}
+    <fieldset class="module ">
+    <h1>{{ titol }}</h1>
+    <h2>{{ descripcio }}</h2>
+    <form action="{{ action }}" method="post" enctype="multipart/form-data">{% csrf_token %}
+        {% if form %}
+            {% if form.errors %}<p></p><p class="errornote">Corregir errores para continuar</p>{% endif %}
+            <table>
+                {{ form.as_p }}
+            </table>
+        {% endif %}
+        {% if static_files %}
+            <h3>Documentos para descargar o visualizar:</h3>
+            <ul>
+            {% load static %}
+            {% for file in static_files %}
+                <li><a href="{% get_static_prefix %}{{ file }}" target=“_blank”>{{ file }}</a></li>
+            {% endfor %}
+            </ul>
+        {% endif %} 
+        <input type="hidden" name="url_destination" value="{{ url_destination }}" />
+        <input type="submit" name="btn_ok" value="Continuar">
+        {% if form %}
+            <input type="submit" name="btn_cancel" value="{% trans "Cancel" %}" formaction="{{ url_destination }}"/>
+        {% endif %}
+    </form> 
+    </fieldset>
+{% endblock %}

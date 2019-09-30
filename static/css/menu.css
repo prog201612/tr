@@ -1,0 +1,42 @@
+:root{
+  --main-color:DimGray; /*LightSteelBlue, DimGray*/
+  --bar-blue:#417690;
+}
+#container, #header {
+  overflow:visible;
+}
+#right-panel {
+  height:100%;  
+  background:#333;
+  width:130px;
+  padding:15px;
+  top:48px;
+  position:fixed;
+  right:-155px;
+  transition: right 0.5s;
+  color:white;
+  border-radius:5px;
+  box-shadow: 3px 3px 10px #666;
+  z-index:1001;
+}
+#right-panel h6 {
+  margin:10px 0 2px 0;
+  font-size:14px;
+  color:var(--bar-blue);
+}
+#right-panel ul {
+  margin:0; padding:0;
+}
+#right-panel ul li {
+  list-style-type: none;
+}
+#right-panel:hover {
+  right:-5px;
+}
+#right-panel ul li a {
+  font-size: 10px;
+  text-decoration:none;
+}
+#right-panel ul li a:hover {
+  color: white;
+}
