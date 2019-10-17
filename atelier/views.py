@@ -107,9 +107,13 @@ def sales_compare_years_report(request):
     year1 = int(request.POST.get('year1', ''))
     year2 = int(request.POST.get('year2', ''))
     list1 = []
+    list1_str = []
     list2 = []
+    list2_str = []
     acumul1 = []
+    acumul1_str = []
     acumul2 = []
+    acumul2_str = []
     ac1 = 0
     ac2 = 0
     dif_list = []
@@ -117,6 +121,7 @@ def sales_compare_years_report(request):
     month_str=['Setiembre', 'Octubre', 'Noviembre', 'Diciembre', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto']
     months = ['09', '10', '11', '12', '01', '02', '03', '04', '05', '06', '07', '08', '09']
     month_years = []
+
     for i,month in enumerate(months[:-1]):
         # Calculem les dates inicial i final per a cada més dels dos anys a comparar
         init_date_1 = '{}-{}-01 00:00:00'.format(year1, month)
@@ -127,41 +132,53 @@ def sales_compare_years_report(request):
         end_date_1 = '{}-{}-01 00:00:00'.format(year1, months[i + 1])
         end_date_2 = '{}-{}-01 00:00:00'.format(year2, months[i + 1])
         print(init_date_1, end_date_1, init_date_2, end_date_2)
+
         # Passem a tipus datetime
         id1 = parse_datetime(init_date_1) # datetime.strptime(init_date_1, '%d/%m/%Y')
         ed1 = parse_datetime(end_date_1) # datetime.strptime(end_date_1, '%d/%m/%Y')
         id2 = parse_datetime(init_date_2) # datetime.strptime(init_date_1, '%d/%m/%Y')
         ed2 = parse_datetime(end_date_2) # datetime.strptime(end_date_1, '%d/%m/%Y')
         print(id1, ed1)
+
         # Consultem la suma mensual i l'afegim a les llistes segons l'any
-        sum1 = Articulo.objects.filter( created__range=(id1, ed1)).aggregate(total=Sum('importe'))
-        sum2 = Articulo.objects.filter( created__range=(id2, ed2)).aggregate(total=Sum('importe'))
+        sum1 = Articulo.objects.filter( pedido__dia__range=(id1, ed1)).aggregate(total=Sum('importe'))
+        sum2 = Articulo.objects.filter( pedido__dia__range=(id2, ed2)).aggregate(total=Sum('importe'))
         print(sum1,sum2)
+
         if sum1['total'] is not None:
+            # '{:,.2f} €'.format(sum1['total'])
+            list1_str.append('{:,.2f} €'.format(sum1['total']))
             list1.append(sum1['total'])
             ac1 += sum1['total']
         else:
+            list1_str.append('{:,.2f} €'.format(0))
             list1.append(0)
+
         if sum2['total'] is not None:
+            list2_str.append('{:,.2f} €'.format(sum2['total']))
             ac2 += sum2['total']
             list2.append(sum2['total'])
         else:
+            list2_str.append('{:,.2f} €'.format(0))            
             list2.append(0)
+
         # Acumulats
         acumul1.append(ac1)
+        acumul1_str.append('{:,.2f} €'.format(ac1))
         acumul2.append(ac2)
-        dif_list.append( list1[-1] - list2[-1] )
-        dif_acumul.append( acumul1[-1] - acumul2[-1] )
+        acumul2_str.append('{:,.2f} €'.format(ac2))
+        dif_list.append( '{:,.2f} €'.format(list1[-1] - list2[-1]) )
+        dif_acumul.append( '{:,.2f} €'.format(acumul1[-1] - acumul2[-1]) )
         # Calculem la columna de mesos amb els anys implicats
         month_years.append( "{} ({}, {})".format(month_str[i], year1, year2)  )   
     context = {
         'year1': year1 - 1,
         'year2': year2 - 1,
         'month_years': month_years,
-        'list1': list1,
-        'list2': list2,
-        'acumul1': acumul1,
-        'acumul2': acumul2,
+        'list1': list1_str,
+        'list2': list1_str,
+        'acumul1': acumul1_str,
+        'acumul2': acumul2_str,
         'dif_list': dif_list,
         'dif_acumul': dif_acumul,
         'action': '/atelier/pedido/', 

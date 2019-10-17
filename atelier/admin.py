@@ -392,7 +392,7 @@ class CajaAdmin(admin.ModelAdmin):
     )
 
     # OVERRIDES
-
+    
     def get_readonly_fields(self, request, obj=None):
         """ semana només es pot modificar al afegir un nou registre """
         if obj: # editing an existing object
@@ -404,6 +404,7 @@ class CajaAdmin(admin.ModelAdmin):
             fields += ('semana',)
             return self.readonly_fields + fields
         return self.readonly_fields
+    
 
    # def save_model(self, request, obj, form, change):
         # obj.user = request.user

@@ -25,6 +25,15 @@ def get_week_by_date(date):
     """ Retorna el número de setmana donada una data """
     return int( date.strftime("%V") )
 
+def week_in_year(year, week):
+    try:
+        d = "{}-W{}".format(year, week)
+        datetime.datetime.strptime(d + '-1', "%G-W%V-%u")
+        return True
+    except:
+        return False
+ 
+
 # DEFAULT VALUE FUNCTIONS
 
 def get_week_by_now():
@@ -46,10 +55,7 @@ def week_validator(value):
     # get year
     year = datetime.datetime.now().year
     # validata week on year
-    try:
-        d = "{}-W{}".format(year, value)
-        datetime.datetime.strptime(d + '-1', "%G-W%V-%u")
-    except:
+    if not week_in_year(year, value):
         raise ValidationError(
             '%(value)s is not a valid week number for %(year)s.',
             params={'value': value, 'year': year},
@@ -75,8 +81,8 @@ class Caja(models.Model):
         ''' Partint de l'any actual i el número de setmana del registre actual, calculem
             el datetime.date corresponent al dilluns d'aquella setmana '''
         if self.semana:
-            year = datetime.datetime.now().year
-            d = "{}-W{}".format(year, self.semana)
+            # year = datetime.datetime.now().year
+            d = "{}-W{}".format(self.year, self.semana)
             return datetime.datetime.strptime(d + '-1', "%G-W%V-%u").date()
 
     # LINKS
@@ -150,20 +156,12 @@ class Caja(models.Model):
             mes el total d'apunts d'entrada menys el total d'aputs de sortida. Si la
             caixa anterior està tancada n'agafem el saldo de tancament. '''
         saldo = 0
-        # Praparem les dades inicials del bucle
-        cajas_anterior = self.caja_anterior.all()
-        # caja_anterior: contindrà la última caixa
-        caja_anterior = None
-        if len(cajas_anterior) > 0:
-            caja_anterior = cajas_anterior[0]
-        # Bucle
+        # caja_anterior: contindrà la última caixa o Null
+        caja_anterior = self.caja_anterior # .all().first()
         while caja_anterior != None and not caja_anterior.cerrada:
-            saldo += caja_anterior.get_total_pagos() + caja_anterior.get_total_apuntes_entrada() - caja_anterior.get_total_apuntes_salida()
+            saldo += caja_anterior.get_total_pagos() + caja_anterior.get_total_apuntes_entrada() + caja_anterior.get_total_apuntes_salida()
             # Preparem les següents dades del bucle
-            cajas_anterior = self.caja_anterior.all()
-            caja_anterior = None
-            if len(cajas_anterior) > 0:
-                caja_anterior = cajas_anterior[0]
+            caja_anterior = caja_anterior.caja_anterior # .all().first()
         # si hi ha caixa tencada hi somem el saldo de cierre
         if caja_anterior != None and caja_anterior.cerrada:
             saldo += caja_anterior.saldo_cierre
@@ -218,12 +216,42 @@ class Caja(models.Model):
 
 @receiver(post_save, sender=Caja)
 def ensure_link_caja_anterior(sender, instance, **kwargs):
-    ''' Quan es crea una caixa es busca la que no te caja_siguiente i es crea l'enllaç  '''
-    caja_anterior_nil = Caja.objects.filter(caja_siguiente=None)
-    if len(caja_anterior_nil) > 1:
-        caja_anterior = Caja.objects.get(pk=caja_anterior_nil[1].pk)
-        caja_anterior.caja_siguiente = instance
-        caja_anterior.save()
+    ''' 
+        Quan es crea una caixa es busca la que no te caja_siguiente i es crea l'enllaç.
+        Si hi ha setmanes intermitges entre l'actual a crear i la caixà que no té
+        caja_siguiente, es creen. No hi ha cap bucle ja que al crear la caixa anterior
+        es tornarà a cridar aquest mètode una altra vegada. D'aquesta manera s'anirà
+        creant caixes anteriors fins a arribar a contactar amb la que era la última de 
+        la llista.
+    '''
+    # La caixa que estem creant actualment també surtirà al filtre agafem la d'abans d'aquesta
+    caja_anterior = Caja.objects.filter(caja_siguiente=None).order_by('year','semana').first()
+    print(caja_anterior)
+    if caja_anterior:
+        # any1 < any2, semana1 < semana2 si any1 == any2.
+        any1 = caja_anterior.year
+        semana1 = caja_anterior.semana
+        any2 = instance.year
+        semana2 = instance.semana
+
+        # Si és la setmana seguent creem l'enllaç i sortim
+        if (any1 == any2 and semana1 + 1 == semana2):
+            caja_anterior.caja_siguiente = instance
+            caja_anterior.save()
+            return
+
+        # Si no hem arrivat a la caja anterior, creem l'anterior a la instància actual anllaçant-la amb aquesta
+        print(any1, any2, int("{}{:02d}".format(any1, semana1)), (int(f"{any2}{semana2}") - 1) )
+        print( int(any1) <= int(any2) and int(f"{any1}{semana1}") < int("{}{:02d}".format(any2, semana2)) - 1)
+        if int(any1) <= int(any2) and int("{}{:02d}".format(any1, semana1)) < int("{}{:02d}".format(any2, semana2)) - 1:
+            semana2 -= 1
+            # Si arrivem a la setmana zero, començem desde l'última setmana de l'any anterior
+            if semana2 == 0:
+                semana2 = 52
+                any2 -=1
+            # Creem la caixa anterior a la actual.
+            new = Caja(year=any2, semana=semana2, caja_siguiente=instance)
+            new.save()
 
 
 ###########
