@@ -381,8 +381,7 @@ class PagoReadOnlyInline(admin.TabularInline):
 class CajaAdmin(admin.ModelAdmin):
     readonly_fields = ('year', 'semana', 'get_monday_by_week', 'saldo_anterior', 'saldo_cierre', \
                        'cerrada', 'caja_siguiente', 'caja_anterior_link', 'caja_siguiente_link', \
-                       'get_total_pagos', 'get_total_apuntes_entrada', 'get_total_apuntes_salida', \
-                       'get_provisional_saldo_anterior', 'get_provisional_saldo')
+                       'get_total_pagos_str', 'get_total_apuntes_entrada_str', 'get_total_apuntes_salida_str')
     inlines = [ ApuntesInline, PagoReadOnlyInline ]
     list_display = ('year', 'semana', 'get_monday_by_week', 'saldo_anterior_', 'saldo_cierre_', 'cerrada')
     actions = [ 'close_box' ]
@@ -391,8 +390,7 @@ class CajaAdmin(admin.ModelAdmin):
         ('saldo_anterior', 'saldo_cierre'),
         ('caja_siguiente', 'cerrada'),
         ('caja_anterior_link', 'caja_siguiente_link'),
-        ('get_total_pagos', 'get_total_apuntes_entrada', 'get_total_apuntes_salida'),
-        ('get_provisional_saldo_anterior', 'get_provisional_saldo'),
+        ('get_total_pagos_str', 'get_total_apuntes_entrada_str', 'get_total_apuntes_salida_str'),
     )
 
     # OVERRIDES
@@ -402,9 +400,9 @@ class CajaAdmin(admin.ModelAdmin):
         if obj: # editing an existing object
             fields = ()
             if not obj.cerrada:
-                if ('get_provisional_saldo_anterior', 'get_provisional_saldo') not in self.fields:
-                    self.fields += (('get_provisional_saldo_anterior', 'get_provisional_saldo'),)
-                fields += ('get_provisional_saldo_anterior', 'get_provisional_saldo',)
+                if ('get_provisional_saldo_anterior_str', 'get_provisional_saldo_str') not in self.fields:
+                    self.fields += (('get_provisional_saldo_anterior_str', 'get_provisional_saldo_str'),)
+                fields += ('get_provisional_saldo_anterior_str', 'get_provisional_saldo_str',)
             fields += ('semana',)
             return self.readonly_fields + fields
         return self.readonly_fields

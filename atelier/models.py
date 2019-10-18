@@ -116,9 +116,13 @@ class Caja(models.Model):
         """
         total_entrada_tuple = self.apuntes.all().aggregate(total_entrada=Sum('entrada'))
         if total_entrada_tuple['total_entrada']:
-            return '{:0,.2f} €'.format(total_entrada_tuple['total_entrada'])
+            return total_entrada_tuple['total_entrada']
         return 0
     get_total_apuntes_entrada.short_description="Total apuntes entrada"
+
+    def get_total_apuntes_entrada_str(self):
+        return '{:0,.2f} €'.format(self.get_total_apuntes_entrada())
+
 
     def get_total_apuntes_salida(self):
         """
@@ -126,9 +130,13 @@ class Caja(models.Model):
         """
         total_salida_tuple = self.apuntes.all().aggregate(total_salida=Sum('salida'))
         if total_salida_tuple['total_salida']:
-            return '{:0,.2f} €'.format(total_salida_tuple['total_salida'])
+            return total_salida_tuple['total_salida']
         return 0
     get_total_apuntes_salida.short_description="Total apuntes salida"
+
+    def get_total_apuntes_salida_str(self):
+        return '{:0,.2f} €'.format(self.get_total_apuntes_salida())
+
 
     def get_total_pagos(self):
         """
@@ -140,6 +148,10 @@ class Caja(models.Model):
         return 0
     get_total_pagos.short_description="Total pagos"
 
+    def get_total_pagos_str(self):
+        return '{:0,.2f} €'.format(self.get_total_pagos())    
+
+
     def get_saldo_cierre(self):
         """
             De la caixa actual, agafa el seu saldo anterior (implica haver tancat la
@@ -148,6 +160,9 @@ class Caja(models.Model):
         """
         return self.saldo_anterior + self.get_total_apuntes_entrada() + self.get_total_pagos() - self.get_total_apuntes_salida()
     get_saldo_cierre.short_description="Saldo cierre"
+
+    def get_saldo_cierre_str(self):
+        return '{:0,.2f} €'.format(self.get_saldo_cierre())  
 
 
     def get_provisional_saldo_anterior(self):
@@ -169,6 +184,10 @@ class Caja(models.Model):
         return saldo
     get_provisional_saldo_anterior.short_description="Saldo anterior provisional"
 
+    def get_provisional_saldo_anterior_str(self):
+        return '{:0,.2f} €'.format(self.get_provisional_saldo_anterior())
+
+
     def get_provisional_saldo(self):
         """
             Utilitzant la funció anterior calcula un saldo provisional o no tant 
@@ -178,6 +197,9 @@ class Caja(models.Model):
         """
         return self.get_provisional_saldo_anterior() + self.get_total_pagos() + self.get_total_apuntes_entrada() - self.get_total_apuntes_salida()
     get_provisional_saldo.short_description="Saldo provisional"
+
+    def get_provisional_saldo_str(self):
+        return '{:0,.2f} €'.format(self.get_provisional_saldo())
 
     # LIST COLUMN RIGHT ALIGN
 
@@ -190,7 +212,7 @@ class Caja(models.Model):
         if self.saldo_anterior < 0:
             color = 'red'
         return format_html(
-            '<span style="color:{};text-align:right;width:100%;display:inline-block;">{}</span>', color, self.saldo_anterior)
+            '<span style="color:{};text-align:right;width:100%;display:inline-block;">{}</span>', color, '{:0,.2f} €'.format(self.saldo_anterior))
 
     def saldo_cierre_(self): 
         """
@@ -201,7 +223,7 @@ class Caja(models.Model):
         if self.saldo_cierre < 0:
             color = 'red'
         return format_html(
-            '<span style="color:{};text-align:right;width:100%;display:inline-block;">{}</span>', color, self.saldo_cierre)
+            '<span style="color:{};text-align:right;width:100%;display:inline-block;">{}</span>', color, '{:0,.2f} €'.format(self.saldo_cierre))
 
 
     # META
