@@ -379,7 +379,10 @@ class PagoReadOnlyInline(admin.TabularInline):
 # Caja
 
 class CajaAdmin(admin.ModelAdmin):
-    readonly_fields = ('year', 'semana', 'get_monday_by_week', 'saldo_anterior', 'saldo_cierre', 'cerrada', 'caja_siguiente', 'caja_anterior_link', 'caja_siguiente_link', 'get_total_pagos', 'get_total_apuntes_entrada', 'get_total_apuntes_salida')
+    readonly_fields = ('year', 'semana', 'get_monday_by_week', 'saldo_anterior', 'saldo_cierre', \
+                       'cerrada', 'caja_siguiente', 'caja_anterior_link', 'caja_siguiente_link', \
+                       'get_total_pagos', 'get_total_apuntes_entrada', 'get_total_apuntes_salida', \
+                       'get_provisional_saldo_anterior', 'get_provisional_saldo')
     inlines = [ ApuntesInline, PagoReadOnlyInline ]
     list_display = ('year', 'semana', 'get_monday_by_week', 'saldo_anterior_', 'saldo_cierre_', 'cerrada')
     actions = [ 'close_box' ]
@@ -388,7 +391,8 @@ class CajaAdmin(admin.ModelAdmin):
         ('saldo_anterior', 'saldo_cierre'),
         ('caja_siguiente', 'cerrada'),
         ('caja_anterior_link', 'caja_siguiente_link'),
-        ('get_total_pagos', 'get_total_apuntes_entrada', 'get_total_apuntes_salida')
+        ('get_total_pagos', 'get_total_apuntes_entrada', 'get_total_apuntes_salida'),
+        ('get_provisional_saldo_anterior', 'get_provisional_saldo'),
     )
 
     # OVERRIDES

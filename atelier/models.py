@@ -116,7 +116,7 @@ class Caja(models.Model):
         """
         total_entrada_tuple = self.apuntes.all().aggregate(total_entrada=Sum('entrada'))
         if total_entrada_tuple['total_entrada']:
-            return total_entrada_tuple['total_entrada']
+            return '{:0,.2f} €'.format(total_entrada_tuple['total_entrada'])
         return 0
     get_total_apuntes_entrada.short_description="Total apuntes entrada"
 
@@ -126,7 +126,7 @@ class Caja(models.Model):
         """
         total_salida_tuple = self.apuntes.all().aggregate(total_salida=Sum('salida'))
         if total_salida_tuple['total_salida']:
-            return total_salida_tuple['total_salida']
+            return '{:0,.2f} €'.format(total_salida_tuple['total_salida'])
         return 0
     get_total_apuntes_salida.short_description="Total apuntes salida"
 
@@ -157,11 +157,12 @@ class Caja(models.Model):
             caixa anterior està tancada n'agafem el saldo de tancament. '''
         saldo = 0
         # caja_anterior: contindrà la última caixa o Null
-        caja_anterior = self.caja_anterior # .all().first()
+        caja_anterior = self.caja_anterior.all().first()
+        print(caja_anterior)
         while caja_anterior != None and not caja_anterior.cerrada:
             saldo += caja_anterior.get_total_pagos() + caja_anterior.get_total_apuntes_entrada() + caja_anterior.get_total_apuntes_salida()
             # Preparem les següents dades del bucle
-            caja_anterior = caja_anterior.caja_anterior # .all().first()
+            caja_anterior = caja_anterior.caja_anterior.all().first()
         # si hi ha caixa tencada hi somem el saldo de cierre
         if caja_anterior != None and caja_anterior.cerrada:
             saldo += caja_anterior.saldo_cierre
