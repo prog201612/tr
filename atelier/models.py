@@ -122,6 +122,7 @@ class Caja(models.Model):
 
     def get_total_apuntes_entrada_str(self):
         return '{:0,.2f} €'.format(self.get_total_apuntes_entrada())
+    get_total_apuntes_entrada_str.short_description="Total apuntes entrada"
 
 
     def get_total_apuntes_salida(self):
@@ -136,6 +137,7 @@ class Caja(models.Model):
 
     def get_total_apuntes_salida_str(self):
         return '{:0,.2f} €'.format(self.get_total_apuntes_salida())
+    get_total_apuntes_salida_str.short_description="Total apuntes salida"
 
 
     def get_total_pagos(self):
@@ -150,6 +152,7 @@ class Caja(models.Model):
 
     def get_total_pagos_str(self):
         return '{:0,.2f} €'.format(self.get_total_pagos())    
+    get_total_pagos_str.short_description="Total pagos"
 
 
     def get_saldo_cierre(self):
@@ -163,6 +166,7 @@ class Caja(models.Model):
 
     def get_saldo_cierre_str(self):
         return '{:0,.2f} €'.format(self.get_saldo_cierre())  
+    get_saldo_cierre_str.short_description="Saldo cierre"
 
 
     def get_provisional_saldo_anterior(self):
@@ -186,6 +190,7 @@ class Caja(models.Model):
 
     def get_provisional_saldo_anterior_str(self):
         return '{:0,.2f} €'.format(self.get_provisional_saldo_anterior())
+    get_provisional_saldo_anterior_str.short_description="Saldo anterior provisional"
 
 
     def get_provisional_saldo(self):
@@ -200,6 +205,7 @@ class Caja(models.Model):
 
     def get_provisional_saldo_str(self):
         return '{:0,.2f} €'.format(self.get_provisional_saldo())
+    get_provisional_saldo_str.short_description="Saldo provisional"
 
     # LIST COLUMN RIGHT ALIGN
 
