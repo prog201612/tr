@@ -109,4 +109,5 @@ venv.bak/
 *.csv
 pcr.env
 settings.py
+db.sqlite3.*
 

@@ -1,15 +1,16 @@
 #-*- coding: utf-8 -*-
 import os
-# from datetime import datetime
+from datetime import timedelta
+
 from django.utils.dateparse import parse_datetime
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render, redirect
 from django.db.models import Sum
 from django.contrib import messages
 from django.core.files.uploadedfile import SimpleUploadedFile
-from tr.settings import BASE_DIR
 from django.http import HttpResponseBadRequest
 
+from tr.settings import BASE_DIR
 from .forms import SalesCompareYearsForm, GetCSVFileForm
 from .models import Articulo
 from .helpers import handle_uploaded_file, import_csv_consumidor, import_csv_pedido
@@ -136,8 +137,11 @@ def sales_compare_years_report(request):
         # Passem a tipus datetime
         id1 = parse_datetime(init_date_1) # datetime.strptime(init_date_1, '%d/%m/%Y')
         ed1 = parse_datetime(end_date_1) # datetime.strptime(end_date_1, '%d/%m/%Y')
+        ed1 = ed1 - timedelta(days=1)
         id2 = parse_datetime(init_date_2) # datetime.strptime(init_date_1, '%d/%m/%Y')
         ed2 = parse_datetime(end_date_2) # datetime.strptime(end_date_1, '%d/%m/%Y')
+        ed2 = ed2 - timedelta(days=1)
+
         print(id1, ed1)
 
         # Consultem la suma mensual i l'afegim a les llistes segons l'any
@@ -176,7 +180,7 @@ def sales_compare_years_report(request):
         'year2': year2 - 1,
         'month_years': month_years,
         'list1': list1_str,
-        'list2': list1_str,
+        'list2': list2_str,
         'acumul1': acumul1_str,
         'acumul2': acumul2_str,
         'dif_list': dif_list,
