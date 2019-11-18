@@ -11,7 +11,6 @@ from django.core.exceptions import ValidationError
 from django.utils.timezone import now
 from django.db.models import Q
 
-
 from .models import Consumidor, Pedido, Pago, Articulo, Caja, Apuntes, PagoNoCaja, get_week_by_date
 from .reports import print_order_report, print_order_payments
 from .views import get_pdf_form_view
@@ -293,13 +292,58 @@ class PedidoAdmin(admin.ModelAdmin):
 #########
 
 class PagoAdmin(admin.ModelAdmin):
-    list_display = ('pedido_id', 'desc', 'dia', 'importe_')
+    list_display = ('pedido_id', 'caja', 'clienta', 'desc', 'dia', 'importe_')
     date_hierarchy = 'dia'
+    search_fields = ['pedido__id', 'pedido__consumidor__nombre', 'desc', 'importe']
 
     # EXTRA LIST FIELDS ######################################
     def pedido_id(self, obj):
         return obj.pedido.pk
     pedido_id.short_description = "Nº Pedido"
+
+    def clienta(self, obj):
+        return obj.pedido.consumidor.nombre
+    pedido_id.short_description = "Clienta"
+
+    # PERMISSIONS ############################################
+    def has_add_permission(self, request):
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
+#################
+# PAGOS NO CAJA ######################################################
+#################
+
+class PagoNoCajaAdmin(admin.ModelAdmin):
+    list_display = ('pedido_id', 'clienta', 'desc', 'dia', 'importe_')
+    date_hierarchy = 'dia'
+    search_fields = ['pedido__id', 'pedido__consumidor__nombre', 'desc', 'importe']
+
+    # EXTRA LIST FIELDS ######################################
+    def pedido_id(self, obj):
+        return obj.pedido.pk
+    pedido_id.short_description = "Nº Pedido"
+
+    def clienta(self, obj):
+        return obj.pedido.consumidor.nombre
+    pedido_id.short_description = "Clienta"
+
+    # PERMISSIONS ############################################
+    def has_add_permission(self, request):
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
 
 
 #######
@@ -505,7 +549,8 @@ class CajaAdmin(admin.ModelAdmin):
 
 admin.site.register(Consumidor, ConsumidorAdmin)
 admin.site.register(Pedido, PedidoAdmin)
-# admin.site.register(Pago, PagoAdmin)
+admin.site.register(Pago, PagoAdmin)
+admin.site.register(PagoNoCaja, PagoNoCajaAdmin)
 admin.site.register(Caja, CajaAdmin)
 
 # Site wide actions
