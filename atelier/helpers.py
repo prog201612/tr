@@ -5,6 +5,19 @@ from .models import Consumidor, Pedido
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+##########
+# FORMAT #
+##########
+
+def getCurrencyHtml(number):
+    n = '{:,.2f} €'.format(number) 
+    if number >= 0:
+        ret = f'<span style="color:green;">{n}</span>'
+    else:
+        ret = f'<span style="color:red;">{n}</span>'
+    return ret
+
+
 ########
 # MAIL #
 ########
@@ -27,7 +40,7 @@ def send_mailgun_mail(to_list, subject_str, text_str, files_list ):
               "subject": subject_str,
               "text": text_str})
 
-    print("REQUET ----> ", res.text)
+    print("REQUEST ----> ", res.text)
 
 
 #######

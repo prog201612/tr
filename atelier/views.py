@@ -13,7 +13,8 @@ from django.http import HttpResponseBadRequest
 from tr.settings import BASE_DIR
 from .forms import SalesCompareYearsForm, GetCSVFileForm
 from .models import Articulo
-from .helpers import handle_uploaded_file, import_csv_consumidor, import_csv_pedido
+from .helpers import handle_uploaded_file, import_csv_consumidor, import_csv_pedido, \
+                     getCurrencyHtml
 
 # Create your views here.
 
@@ -159,22 +160,22 @@ def sales_compare_years_report(request):
             list1.append(0)
 
         if sum2['total'] is not None:
-            list2_str.append('{:,.2f} €'.format(sum2['total']))
+            list2_str.append('<span style="color:#888">{:,.2f} €</span>'.format(sum2['total']))
             ac2 += sum2['total']
             list2.append(sum2['total'])
         else:
-            list2_str.append('{:,.2f} €'.format(0))            
+            list2_str.append('<span style="color:#888">{:,.2f} €</span>'.format(0))            
             list2.append(0)
 
         # Acumulats
         acumul1.append(ac1)
         acumul1_str.append('{:,.2f} €'.format(ac1))
         acumul2.append(ac2)
-        acumul2_str.append('{:,.2f} €'.format(ac2))
-        dif_list.append( '{:,.2f} €'.format(list1[-1] - list2[-1]) )
-        dif_acumul.append( '{:,.2f} €'.format(acumul1[-1] - acumul2[-1]) )
+        acumul2_str.append('<span style="color:#888">{:,.2f} €</span>'.format(ac2))
+        dif_list.append( getCurrencyHtml(list1[-1] - list2[-1]) )
+        dif_acumul.append( getCurrencyHtml(acumul1[-1] - acumul2[-1]) )
         # Calculem la columna de mesos amb els anys implicats
-        month_years.append( "{} ({}, {})".format(month_str[i], year1, year2)  )   
+        month_years.append( '<b>{}(</b> {}, <span style="color:#888">{}</span><b>)</b> '.format(month_str[i], year1, year2)  )   
     context = {
         'year1': year1 - 1,
         'year2': year2 - 1,

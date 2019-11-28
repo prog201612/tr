@@ -15,7 +15,7 @@ from .models import Consumidor, Pedido, Pago, Articulo, Caja, Apuntes, PagoNoCaj
 from .reports import print_order_report, print_order_payments
 from .views import get_pdf_form_view
 from .helpers import send_mailgun_mail
-from tr.settings import BASE_DIR
+from tr.settings import BASE_DIR, MAILGUN_AUTHORIZED_LIST
 
 
 # Register your models here.
@@ -236,7 +236,7 @@ class PedidoAdmin(admin.ModelAdmin):
         # Enviem
         try:
             send_mailgun_mail(
-                to_list=["pere@teresaripoll.com"], 
+                to_list=MAILGUN_AUTHORIZED_LIST, 
                 subject_str="Atelier Pedidos PDF...", 
                 text_str="Atelier email sender, HTML.", 
                 files_list=files)
@@ -531,7 +531,7 @@ class CajaAdmin(admin.ModelAdmin):
                 self.message_user(request, 'Se ha cerrado la caja y se ha informado a oficina via email...', level=messages.INFO)
                 # enviem correu a officina
                 send_mailgun_mail(
-                    to_list=["pere@teresaripoll.com"], 
+                    to_list=MAILGUN_AUTHORIZED_LIST, 
                     subject_str="Atelier Caja cerrada...", 
                     text_str="Se ha cerrado la caja: " + str(caja), 
                     files_list=[])

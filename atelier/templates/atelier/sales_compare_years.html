@@ -17,13 +17,13 @@
         <th>Acumulado Dif.</th>
         {% for month in month_years %}
           <tr>
-            <td>{{month}}</td>
+            <td>{{month|safe}}</td>
             <td style="text-align:right;">{{list1|get_by_index:forloop.counter0}}</td>
             <td style="text-align:right;">{{acumul1|get_by_index:forloop.counter0}}</td>
-            <td style="text-align:right;">{{list2|get_by_index:forloop.counter0}}</td>
-            <td style="text-align:right;">{{acumul2|get_by_index:forloop.counter0}}</td>
-            <td style="text-align:right;">{{dif_list|get_by_index:forloop.counter0}}</td>
-            <td style="text-align:right;">{{dif_acumul|get_by_index:forloop.counter0}}</td>
+            <td style="text-align:right;">{{list2|get_by_index:forloop.counter0|safe}}</td>
+            <td style="text-align:right;">{{acumul2|get_by_index:forloop.counter0|safe}}</td>
+            <td style="text-align:right;">{{dif_list|get_by_index:forloop.counter0|safe}}</td>
+            <td style="text-align:right;">{{dif_acumul|get_by_index:forloop.counter0|safe}}</td>
           </tr>
         {% endfor %}
       </table>
