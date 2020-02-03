@@ -1,5 +1,6 @@
 #-*- coding: utf-8 -*-
 import os
+import random
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from tr.settings import BASE_DIR
@@ -106,6 +107,7 @@ def print_order(order):
 
     # Fecha / Fecha Entrega
     field(c, MARGIN_X, topY, "Fecha:", order.dia_pedido.strftime('%d/%m/%Y'))
+    field(c, MARGIN_X + 140, topY, "ID:", f"NP{order.pk}-EX{random.randint(100,200)}")
     field(c, MARGIN_X + 310, topY,"Fecha entrega:", order.dia_entrega.strftime('%d/%m/%Y'))
     topY -= lineY
 

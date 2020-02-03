@@ -45,6 +45,7 @@ def consumidor_to_csv_form(request):
 
 @staff_member_required
 def consumidor_import_from_csv(request):
+    # @user_passes_test(lambda u: u.is_superuser)
     if request.user.is_superuser:
         # Guardem el fitxer a disc
         file_name = handle_uploaded_file(request.FILES['csv_file'])
