@@ -12,7 +12,8 @@ from django.http import HttpResponseBadRequest
 
 from tr.settings import BASE_DIR
 from .forms import SalesCompareYearsForm, GetCSVFileForm
-from .models import Articulo
+from .models import Articulo, Pedido
+from .reports import print_order
 from .helpers import handle_uploaded_file, import_csv_consumidor, import_csv_pedido, \
                      getCurrencyHtml
 
@@ -84,18 +85,6 @@ def pedido_import_from_csv(request):
 ##################################
 # INFORME: Ventes entre dos anys #
 ##################################
-
-@staff_member_required
-def sales_compare_years(request):
-    form = SalesCompareYearsForm()
-    context = {
-        'form':form,
-        'action': '/atelier/sales-compare-years-report/',
-        'url_destination': '/atelier/pedido/',
-        'titol': 'Comparativa de ventas',
-        'descripcio':'Comparacion de ventas de Febrero a Agosto, entre dos anyos.'
-    }
-    return render(request, 'atelier/pcr_form_p.html', context)
 
 @staff_member_required
 def sales_compare_years_report(request):
@@ -206,3 +195,15 @@ def get_pdf_form_view(request, action, titol, files, url_destination):
         'titol': titol + ' - Informe en formato PDF o CSV',
         'descripcio':'Imprime o guarda el PDF o CSV'}
     return render(request, 'atelier/pcr_form_p.html', context)
+
+
+################################
+# VISTA PER IMPRIMIR UN PEDIDO #
+################################
+
+def pdf_pedido(request, pk):
+    file_names_list = []
+    pedido = Pedido.objects.get(pk=pk)
+    file_names_list.append(print_order(pedido))
+    names_only_list = ['pdf/' + s.split('/')[-1] for s in file_names_list]
+    return get_pdf_form_view(request, action='/atelier/pedido/', titol='Pedidos', files=names_only_list, url_destination='/atelier/pedido/')

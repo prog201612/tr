@@ -110,4 +110,6 @@ venv.bak/
 pcr.env
 settings.py
 db.sqlite3.*
+# migracions
+00*.py
 

@@ -6,13 +6,13 @@
   overflow:visible;
 }
 #right-panel {
-  height:15px;  
+  height:18px;  
   background:#333;
   width:130px;
   padding: 0px 15px 15px 15px;
   top:49px;
   position:fixed;
-  right:-70px; /* -155px */
+  right:-125px; /* -155px */
   transition: all 0.5s;
   color:white;
   border-radius:5px;

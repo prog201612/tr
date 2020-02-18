@@ -11,6 +11,7 @@ from django.utils.html import format_html
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.db.models import Sum
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -32,6 +33,12 @@ def week_in_year(year, week):
         return True
     except:
         return False
+
+def get_year_week_int_by_date(date):
+    """ Amb la data 11/02/2019 retorna 201907 on 07 és el número de setmana """
+    week = get_week_by_date(date)
+    print("atelier::models::get_year_week_int_by_date =>", int("{}{:02d}".format(date.year, week)) )
+    return int("{}{:02d}".format(date.year, week))
  
 
 # DEFAULT VALUE FUNCTIONS
@@ -84,6 +91,10 @@ class Caja(models.Model):
             # year = datetime.datetime.now().year
             d = "{}-W{}".format(self.year, self.semana)
             return datetime.datetime.strptime(d + '-1', "%G-W%V-%u").date()
+
+    def get_year_week_int(self):
+        print("atelier::models::get_year_week_int =>", int("{}{:02d}".format(self.year, self.semana)) )
+        return int("{}{:02d}".format(self.year, self.semana))
 
     # LINKS
 
@@ -241,48 +252,6 @@ class Caja(models.Model):
         ordering = ['-year', '-semana']
 
 
-# SIGNALS
-
-@receiver(post_save, sender=Caja)
-def ensure_link_caja_anterior(sender, instance, **kwargs):
-    ''' 
-        Quan es crea una caixa es busca la que no te caja_siguiente i es crea l'enllaç.
-        Si hi ha setmanes intermitges entre l'actual a crear i la caixà que no té
-        caja_siguiente, es creen. No hi ha cap bucle ja que al crear la caixa anterior
-        es tornarà a cridar aquest mètode una altra vegada. D'aquesta manera s'anirà
-        creant caixes anteriors fins a arribar a contactar amb la que era la última de 
-        la llista.
-    '''
-    # La caixa que estem creant actualment també surtirà al filtre agafem la d'abans d'aquesta
-    caja_anterior = Caja.objects.filter(caja_siguiente=None).order_by('year','semana').first()
-    print(caja_anterior)
-    if caja_anterior:
-        # any1 < any2, semana1 < semana2 si any1 == any2.
-        any1 = caja_anterior.year
-        semana1 = caja_anterior.semana
-        any2 = instance.year
-        semana2 = instance.semana
-
-        # Si és la setmana seguent creem l'enllaç i sortim
-        if (any1 == any2 and semana1 + 1 == semana2):
-            caja_anterior.caja_siguiente = instance
-            caja_anterior.save()
-            return
-
-        # Si no hem arrivat a la caja anterior, creem l'anterior a la instància actual anllaçant-la amb aquesta
-        print(any1, any2, int("{}{:02d}".format(any1, semana1)), (int(f"{any2}{semana2}") - 1) )
-        print( int(any1) <= int(any2) and int(f"{any1}{semana1}") < int("{}{:02d}".format(any2, semana2)) - 1)
-        if int(any1) <= int(any2) and int("{}{:02d}".format(any1, semana1)) < int("{}{:02d}".format(any2, semana2)) - 1:
-            semana2 -= 1
-            # Si arrivem a la setmana zero, començem desde l'última setmana de l'any anterior
-            if semana2 == 0:
-                semana2 = 52
-                any2 -=1
-            # Creem la caixa anterior a la actual.
-            new = Caja(year=any2, semana=semana2, caja_siguiente=instance)
-            new.save()
-
-
 ###########
 # Apuntes #
 ###########
@@ -315,6 +284,10 @@ class Consumidor(models.Model):
 
     def __str__(self):
         return self.nombre
+
+    class Meta:
+        verbose_name_plural = 'Consumidores'
+
 
 ##########
 # Pedido #
@@ -542,26 +515,6 @@ class Pago(models.Model):
     # def save(self, *args, **kwargs):
     #    super().save(*args, **kwargs)
 
-# SIGNAL: PAGOS en EFECTIU
-
-@receiver(post_save, sender=Pago)
-def ensure_caja_exists(sender, instance, **kwargs):
-    """ 
-        Al crear o modificar un pago en efectiu ha de tenir una caixa assignada 
-        segons el dia del pago. En cas de que no hi hagi cap caixa overta el
-        validador cash_payment_week_validator ja la crea al validar el dia del
-        pagament.
-    """
-    print("EL VALOR DE caja:", instance.caja)
-    year = instance.dia.year
-    week = get_week_by_date(instance.dia)
-    # si és un pagament en efetiu ha de tenir una caixa assignada. 
-    if instance.caja is None or week != instance.caja.semana:
-        result = Caja.objects.get(year=year, semana=week) # get_or_create, hi ha un validator
-        #if not result.cerrada: # No cal si no n'hi ha cap d'oberta el validador la crea
-        instance.caja = result 
-        instance.save()
-
 
 ################
 # PAGO NO CAJA #
@@ -599,3 +552,61 @@ class PagoNoCaja(models.Model):
         verbose_name_plural = "Pagos No a Caja"
 
 
+#########################
+# NotificationTypeXUser #
+#########################
+
+NOTIFICATION_TYPE_SEND_ORDER_TO_WORKSHOP = 10
+NOTIFICATION_TYPE_NEW_PAYMENT = 20
+NOTIFICATION_TYPE_EDIT_PAYMENT = 30
+NOTIFICATION_TYPE_DEL_PAYMENT = 40
+NOTIFICATION_TYPE_BOX_CLOSED = 50
+
+NOTIFICATION_TYPES = (
+    (NOTIFICATION_TYPE_SEND_ORDER_TO_WORKSHOP, 'enviar pedido al taller'),
+    (NOTIFICATION_TYPE_NEW_PAYMENT, 'nuevo pago'),
+    (NOTIFICATION_TYPE_EDIT_PAYMENT, 'pago modificado'),
+    (NOTIFICATION_TYPE_DEL_PAYMENT, 'pago eliminado'),
+    (NOTIFICATION_TYPE_BOX_CLOSED, 'caja cerrada'),
+)
+
+class NotificationTypeXUser(models.Model):
+    user = models.ForeignKey(User, related_name='subscripciones', on_delete=models.CASCADE, verbose_name='usuario')
+    notification_type = models.IntegerField('tipo', choices=NOTIFICATION_TYPES)
+
+    def get_notification_type_text(self):
+        for type in NOTIFICATION_TYPES:
+            if type[0] == self.notification_type:
+                return type[1]
+        return "-- indeterminado --"
+
+    def __str__(self):
+        # User USER_NAME notified when NEW ORDER
+        ret = f"usuario {self.user.username} notificado quando: {self.get_notification_type_text()}"
+        return str(ret)
+
+    class Meta:
+        ordering = ('user',)
+        unique_together = [['user', 'notification_type']]
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, related_name='notificaciones', on_delete=models.CASCADE, verbose_name='usuario')
+    notification_type = models.IntegerField('tipo', choices=NOTIFICATION_TYPES)
+    date_time = models.DateTimeField('fecha hora', auto_now_add=True)
+    description = models.CharField('descripción', max_length=255, null=True, blank=True)
+    read = models.BooleanField('leida', default=False)
+
+    class Meta:
+        ordering = ['read', '-date_time']
+
+    @staticmethod
+    def new_notification(notification_type, description=None):
+        notification_type_x_users = NotificationTypeXUser.objects.filter(notification_type=notification_type)
+        for notification_type_x_user in notification_type_x_users:
+            notification = Notification(
+                user=notification_type_x_user.user,
+                notification_type=notification_type,
+                description=description
+            )
+            notification.save()

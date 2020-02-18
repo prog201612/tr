@@ -4,7 +4,9 @@
 
 {% load static %}
 {% block extrastyle %}
+  {{ block.super }}
   <link href="{% static 'css/menu.css'%}" rel="stylesheet">
+  <link href="{% static "vendor/fontawesome/css/all.min.css" %}" rel="stylesheet" type="text/css">
 {% endblock %}
 
 {% block branding %}
@@ -12,17 +14,29 @@
 {% endblock %}
 
 {% block nav-global %}
-  <div id="right-panel">
 
+  <!-- NOTIFICATIONS -->
+  <a href="http://{{ request.get_host }}/atelier/notification/">
+    <i class="fas fa-inbox"></i>
+    <span
+      style="color:white;border-radius:50px;padding: 0 2px;font-weight:normal;font-size:0.6em;margin-left:-10px;
+        {% if request.notification_count > 0 %}
+        background:red;
+        {% endif %}
+      "
+    >{{ request.notification_count }}</span>
+  </a>
+{% comment %}
+  <div id="right-panel">
     <!-- INFORMES -->
-    <h6>INFORMES</h6>
+    <h6><i class="fa fa-file-alt"></i> - INFORMES</h6>
     <ul>
       <li><a href="/atelier/sales-compare-years/">VENTAS ENTRE 2 AÑOS</a></li>
     </ul>
 
     {% if user.is_superuser %}
       <!-- IMPORTAR -->
-      <h6>IMPORTAR</h6>
+      <h6><i class="fa fa-file-import"></i> - IMPORTAR</h6>
       <ul>
         <li><a href="/atelier/consumidor-to-csv/">CONSUMIDOR</a></li>
         <li><a href="/atelier/pedido-to-csv/">PEDIDO</a></li>
@@ -30,4 +44,5 @@
     {% endif %}
     
   </div>
+{% endcomment %}
 {% endblock %}
