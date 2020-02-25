@@ -1,7 +1,8 @@
 from django.urls import path
 
 from .views import sales_compare_years_report, consumidor_import_from_csv, \
-                   consumidor_to_csv_form, pedido_to_csv_form, pedido_import_from_csv, pdf_pedido
+                   consumidor_to_csv_form, pedido_to_csv_form, pedido_import_from_csv, \
+                   pdf_pedido, pdf_pedido_pagos
 
 atelier_patterns = ([
     # path('sales-compare-years/', sales_compare_years, name='sales_compare_years'),
@@ -13,5 +14,7 @@ atelier_patterns = ([
     path('pedido-to-csv/', pedido_to_csv_form, name='pedido-to-csv'),
     path('pedido-import-from-csv/', pedido_import_from_csv, name='pedido_import_from_csv'),
 
-    path('pdf-pedido/<int:pk>', pdf_pedido, name="pdf-pedido")
+    path('pdf-pedido/<int:pk>', pdf_pedido, name="pdf-pedido"),
+    path('pdf-pedido-pagos/<int:pk>', pdf_pedido_pagos, name="pdf-pedido-pagos"),
+    
 ], 'atelier')

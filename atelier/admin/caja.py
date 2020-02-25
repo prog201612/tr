@@ -92,11 +92,11 @@ class PagoReadOnlyInline(admin.TabularInline):
 # Caja
 @admin.register(Caja)
 class CajaAdmin(admin.ModelAdmin):
-    readonly_fields = ('year', 'semana', 'get_monday_by_week', 'saldo_anterior', 'saldo_cierre', \
+    readonly_fields = ('id', 'year', 'semana', 'get_monday_by_week', 'saldo_anterior', 'saldo_cierre', \
                        'cerrada', 'caja_siguiente', 'caja_anterior_link', 'caja_siguiente_link', \
                        'get_total_pagos_str', 'get_total_apuntes_entrada_str', 'get_total_apuntes_salida_str')
     inlines = [ ApuntesInline, PagoReadOnlyInline ]
-    list_display = ('year', 'semana', 'get_monday_by_week', 'saldo_anterior_', 'saldo_cierre_', 'cerrada')
+    list_display = ('id', 'year', 'semana', 'get_monday_by_week', 'saldo_anterior_', 'saldo_cierre_', 'cerrada')
     actions = [ 'close_box' ]
     fields = (
         ('year', 'semana', 'get_monday_by_week',),
@@ -200,7 +200,7 @@ class CajaAdmin(admin.ModelAdmin):
                 caja.saldo_cierre = caja.get_saldo_cierre()
                 caja.save()
                 # Creem la notificació
-                desc = f'<a href="http://{request.get_host()}/atelier/caja/{caja.pk}/change/">Caja Nº: {caja.pk}</a>'
+                desc = f'<a href="/atelier/caja/{caja.pk}/change/">Caja Nº: {caja.pk}</a>'
                 Notification.new_notification( NOTIFICATION_TYPE_BOX_CLOSED, desc )
                 # Caja.objects.create(saldo_anterior=caja.saldo_cierre)
                 self.message_user(request, 'Se ha cerrado la caja y se ha informado a oficina via email...', level=messages.INFO)

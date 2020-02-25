@@ -13,7 +13,7 @@ from django.http import HttpResponseBadRequest
 from tr.settings import BASE_DIR
 from .forms import SalesCompareYearsForm, GetCSVFileForm
 from .models import Articulo, Pedido
-from .reports import print_order
+from .reports import print_order, print_order_payments
 from .helpers import handle_uploaded_file, import_csv_consumidor, import_csv_pedido, \
                      getCurrencyHtml
 
@@ -115,6 +115,9 @@ def sales_compare_years_report(request):
     month_years = []
 
     for i,month in enumerate(months[:-1]):
+        # Calculem la columna de mesos amb els anys implicats
+        month_years.append( '<b>{}(</b> {}, <span style="color:#888">{}</span><b>)</b> '.format(month_str[i], year1, year2)  )   
+
         # Calculem les dates inicial i final per a cada més dels dos anys a comparar
         init_date_1 = '{}-{}-01 00:00:00'.format(year1, month)
         init_date_2 = '{}-{}-01 00:00:00'.format(year2, month)        
@@ -164,8 +167,6 @@ def sales_compare_years_report(request):
         acumul2_str.append('<span style="color:#888">{:,.2f} €</span>'.format(ac2))
         dif_list.append( getCurrencyHtml(list1[-1] - list2[-1]) )
         dif_acumul.append( getCurrencyHtml(acumul1[-1] - acumul2[-1]) )
-        # Calculem la columna de mesos amb els anys implicats
-        month_years.append( '<b>{}(</b> {}, <span style="color:#888">{}</span><b>)</b> '.format(month_str[i], year1, year2)  )   
     context = {
         'year1': year1 - 1,
         'year2': year2 - 1,
@@ -202,8 +203,19 @@ def get_pdf_form_view(request, action, titol, files, url_destination):
 ################################
 
 def pdf_pedido(request, pk):
+    if not request.user.has_perm('atelier.view_pedido'):
+        return redirect('/')
     file_names_list = []
     pedido = Pedido.objects.get(pk=pk)
     file_names_list.append(print_order(pedido))
     names_only_list = ['pdf/' + s.split('/')[-1] for s in file_names_list]
     return get_pdf_form_view(request, action='/atelier/pedido/', titol='Pedidos', files=names_only_list, url_destination='/atelier/pedido/')
+
+
+def pdf_pedido_pagos(request, pk):
+    if not request.user.has_perm('atelier.view_pago'):
+        return redirect('/')
+    pedido = Pedido.objects.get(pk=pk)
+    file = 'pdf/' + print_order_payments(pedido)
+    return get_pdf_form_view(request, action='/atelier/pedido/', titol='Pagos de un Pedido', files=[file,], url_destination='/atelier/pedido/')
+ 

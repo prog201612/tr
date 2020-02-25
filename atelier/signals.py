@@ -4,16 +4,13 @@ from django.db.models.signals import post_save, post_delete, pre_save
 from .models import Pago, PagoNoCaja, NOTIFICATION_TYPE_NEW_PAYMENT, NOTIFICATION_TYPE_EDIT_PAYMENT, \
                     NOTIFICATION_TYPE_DEL_PAYMENT, Notification, get_week_by_date, Caja
 
-
-HOST = "127.0.0.1:8000"
-
 def pago_create_notification(instance, created, pago_url):
     if created:
         NOTIFICATION_TYPE = NOTIFICATION_TYPE_NEW_PAYMENT
-        desc = f'<a href="http://{HOST}/atelier/{pago_url}/{instance.pk}/change/">Añadido {pago_url} Nº: {instance.pk}</a>'
+        desc = f'<a href="/atelier/{pago_url}/{instance.pk}/change/">Añadido {pago_url} Nº: {instance.pk}</a>'
     else:
         NOTIFICATION_TYPE = NOTIFICATION_TYPE_EDIT_PAYMENT
-        desc = f'<a href="http://{HOST}/atelier/{pago_url}/{instance.pk}/change/">Modificado {pago_url} Nº: {instance.pk}</a>'
+        desc = f'<a href="/atelier/{pago_url}/{instance.pk}/change/">Modificado {pago_url} Nº: {instance.pk}</a>'
     Notification.new_notification( NOTIFICATION_TYPE, desc )
     print("[PCR] - Added Notification")
 

@@ -258,7 +258,7 @@ class PedidoAdmin(PCRModelAdmin):
         print("Sending email width pdf's...")
         # Creem les notificacions per cada pedido enviat.
         for order in queryset:
-            desc = f'<a href="http://{request.get_host()}/atelier/pedido/{order.pk}/change/">Pedido Nº: {order.pk}</a>'
+            desc = f'<a href="/atelier/pedido/{order.pk}/change/">Pedido Nº: {order.pk}</a>'
             Notification.new_notification( NOTIFICATION_TYPE_SEND_ORDER_TO_WORKSHOP, desc )
         # Adjuntem fitxers
         files = []
