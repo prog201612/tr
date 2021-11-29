@@ -368,12 +368,17 @@ class Pedido(models.Model):
         ''' Per poder crear una columna personalitzada al llistat '''
         color = 'green'
         if self.total_pagado() != self.importe_total():
-            color = 'red'
+            color = 'orange'
         return format_html(
-            '<span style="color:{};text-align:right;width:100%;display:inline-block;">{}</span>', color, self.total_pagado())
+            '<span style="color:{};text-align:right;width:100%;display:inline-block;"><b>{}</b></span>', color, self.total_pagado())
 
     def pendiente(self):
         return self.importe_total() - self.total_pagado()
+
+    def pendiente_(self):
+        return format_html(
+            '<span style="color:red;text-align:right;width:100%;display:inline-block;"><b>{}</b></span>', self.pendiente())
+
 
     def articulos_str(self):
         l = [a.desc for a in self.articulos.all()]
@@ -389,7 +394,7 @@ class Pedido(models.Model):
     def importe_total_(self): 
         ''' Per poder crear una columna personalitzada al llistat '''
         return format_html(
-            '<span style="text-align:right;width:100%;display:inline-block;">{}</span>', self.importe_total())
+            '<span style="text-align:right;width:100%;display:inline-block;"><b>{}</b></span>', self.importe_total())
 
     class Meta:
         ordering = ['-updated']

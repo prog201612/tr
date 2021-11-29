@@ -162,7 +162,7 @@ class PedidoAdmin(PCRModelAdmin):
     inlines = [ ArticuloInline, PagoInline, PagoInlineEdit, PagoNoCajaInline ]
     actions = [ 'email_orders_as_pdf', 'order_report', 'order_payments_list', 'mark_as_completed']
     raw_id_fields = ("consumidor",)
-    readonly_fields = ('id', 'activo', 'importe_total_', 'total_pagado_', 'pendiente')
+    readonly_fields = ('id', 'activo', 'importe_total_', 'total_pagado_', 'pendiente_')
     change_list_template = "atelier/pedidos_change_list.html"
     change_form_template = "atelier/pedidos_change_form.html"
     fields = (
@@ -179,7 +179,7 @@ class PedidoAdmin(PCRModelAdmin):
         ('largo_chaqueta_delante', 'largo_blusa_delante'),
         ('largo_manga_chaqueta', 'largo_manga_blusa'),
         ('contorno_brazo', 'de_hombro_a_hombro'),
-        ('importe_total_', 'total_pagado_', 'pendiente'),
+        ('importe_total_', 'total_pagado_', 'pendiente_'),
     )
 
     # OVERRIDES
