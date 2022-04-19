@@ -92,9 +92,6 @@ class PagoReadOnlyInline(admin.TabularInline):
 # Caja
 @admin.register(Caja)
 class CajaAdmin(admin.ModelAdmin):
-    readonly_fields = ('id', 'year', 'semana', 'get_monday_by_week', 'saldo_anterior', 'saldo_cierre', \
-                       'cerrada', 'caja_siguiente', 'caja_anterior_link', 'caja_siguiente_link', \
-                       'get_total_pagos_str', 'get_total_apuntes_entrada_str', 'get_total_apuntes_salida_str')
     inlines = [ ApuntesInline, PagoReadOnlyInline ]
     list_display = ('id', 'year', 'semana', 'get_monday_by_week', 'saldo_anterior_', 'saldo_cierre_', 'cerrada')
     actions = [ 'close_box' ]
@@ -110,15 +107,14 @@ class CajaAdmin(admin.ModelAdmin):
     
     def get_readonly_fields(self, request, obj=None):
         """ semana només es pot modificar al afegir un nou registre """
+        readonly_fields = ('id', 'year', 'semana', 'get_monday_by_week', 'saldo_anterior', 'saldo_cierre', \
+                        'cerrada', 'caja_siguiente', 'caja_anterior_link', 'caja_siguiente_link', \
+                        'get_total_pagos_str', 'get_total_apuntes_entrada_str', 'get_total_apuntes_salida_str')
         if obj: # editing an existing object
-            fields = ()
             if not obj.cerrada:
-                if ('get_provisional_saldo_anterior_str', 'get_provisional_saldo_str') not in self.fields:
-                    self.fields += (('get_provisional_saldo_anterior_str', 'get_provisional_saldo_str'),)
-                fields += ('get_provisional_saldo_anterior_str', 'get_provisional_saldo_str',)
-            fields += ('semana',)
-            return self.readonly_fields + fields
-        return self.readonly_fields
+                readonly_fields += ('get_provisional_saldo_anterior_str', 'get_provisional_saldo_str',)
+            readonly_fields += ('semana',)
+        return readonly_fields
     
 
    # def save_model(self, request, obj, form, change):

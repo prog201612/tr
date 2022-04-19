@@ -250,6 +250,8 @@ class Caja(models.Model):
             Ordenem les caixes per any i número de setmana de més actual a menys
         """
         ordering = ['-year', '-semana']
+        unique_together = ('year', 'semana',)
+
 
 
 ###########
