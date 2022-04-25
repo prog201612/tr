@@ -44,13 +44,13 @@ class PagoInline(admin.TabularInline):
 class PagoInlineEdit(admin.TabularInline):
     model = Pago
     extra = 0
-    readonly_fields = ('caja',)
+    readonly_fields = ('caja', 'recibo_creado', )
     verbose_name_plural = "Pagos en efectivo"
 
     def get_queryset(self, request):
         qs = super(PagoInlineEdit, self).get_queryset(request)
         # return qs.filter( Q(caja__cerrada=False) | Q(forma_pago__gt=1) )
-        return qs.filter(caja__cerrada=False)
+        return qs.filter(caja__cerrada=False, recibo_creado=False)
 
     def has_add_permission(self, request, obj=None):
         if not request.user.has_perm('atelier.add_pedido'):
@@ -72,11 +72,33 @@ class PagoInlineEdit(admin.TabularInline):
         if obj:
             return obj.activo
         return True
+
+
+class PagoInlineRecivo(admin.TabularInline):
+    model = Pago
+    extra = 0
+    readonly_fields = ('caja', 'recibo_creado', )
+    verbose_name_plural = "Pagos en efectivo con recibo entregado"
+
+    def get_queryset(self, request):
+        qs = super(PagoInlineRecivo, self).get_queryset(request)
+        # return qs.filter( Q(caja__cerrada=False) | Q(forma_pago__gt=1) )
+        return qs.filter(caja__cerrada=False, recibo_creado=True)
+
+    def has_add_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
 
 
 class PagoNoCajaInline(admin.TabularInline):
     model = PagoNoCaja
     extra = 0
+    readonly_fields = ('recibo_creado', )
 
     def has_add_permission(self, request, obj=None):
         if not request.user.has_perm('atelier.add_pedido'):
@@ -98,6 +120,30 @@ class PagoNoCajaInline(admin.TabularInline):
         if obj:
             return obj.activo
         return True
+
+    def get_queryset(self, request):
+        qs = super(PagoNoCajaInline, self).get_queryset(request)
+        return qs.filter(recibo_creado=False)
+
+
+class PagoNoCajaInlineRecivo(admin.TabularInline):
+    model = PagoNoCaja
+    extra = 0
+    readonly_fields = ('recibo_creado', )
+    verbose_name_plural = "Pagos no a caja con recibo entregado"
+
+    def get_queryset(self, request):
+        qs = super(PagoNoCajaInlineRecivo, self).get_queryset(request)
+        return qs.filter(recibo_creado=True)
+
+    def has_add_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
 
 
 class ArticuloInline(admin.TabularInline):
@@ -159,10 +205,10 @@ class PedidoAdmin(PCRModelAdmin):
     list_filter = ['activo',]
     default_filters = ('activo__exact=1',)
     search_fields = ('id', 'consumidor__nombre',)
-    inlines = [ ArticuloInline, PagoInline, PagoInlineEdit, PagoNoCajaInline ]
+    inlines = [ ArticuloInline, PagoInline, PagoInlineEdit, PagoNoCajaInline, PagoInlineRecivo, PagoNoCajaInlineRecivo, ]
     actions = [ 'email_orders_as_pdf', 'order_report', 'order_payments_list', 'mark_as_completed']
     raw_id_fields = ("consumidor",)
-    readonly_fields = ('id', 'activo', 'importe_total_', 'total_pagado_', 'pendiente_')
+    readonly_fields = ('id', 'activo', 'importe_total_', 'total_pagado_', 'pendiente_', )
     change_list_template = "atelier/pedidos_change_list.html"
     change_form_template = "atelier/pedidos_change_form.html"
     fields = (

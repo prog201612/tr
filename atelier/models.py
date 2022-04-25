@@ -505,6 +505,7 @@ class Pago(models.Model):
     importe = models.DecimalField(max_digits=9, decimal_places=2, default=0, validators=[greater_or_equal_to_zero])
     # forma_pago = models.IntegerField(verbose_name="Forma de pago", choices=TIPO_PAGO, default=2)
     caja = models.ForeignKey('Caja', on_delete=models.CASCADE, related_name='pagos', null=True, blank=True)
+    recibo_creado = models.BooleanField(default=False)
 
     created = models.DateTimeField(auto_now_add=True) # només al crear
     updated = models.DateTimeField(auto_now=True) # cada modificació 
@@ -540,6 +541,7 @@ class PagoNoCaja(models.Model):
     importe = models.DecimalField(max_digits=9, decimal_places=2, default=0, validators=[greater_or_equal_to_zero])
     forma_pago = models.IntegerField(verbose_name="Forma de pago", choices=TIPO_PAGO, default=1)
     # caja = models.ForeignKey('Caja', on_delete=models.CASCADE, related_name='pagos', null=True, blank=True)
+    recibo_creado = models.BooleanField(default=False)
 
     created = models.DateTimeField(auto_now_add=True) # només al crear
     updated = models.DateTimeField(auto_now=True) # cada modificació 

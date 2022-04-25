@@ -276,12 +276,16 @@ def print_order_payments(order):
         field(c, MARGIN_X + 10, topY, pago.dia.strftime('%d/%m/%Y'), pago.desc)
         fieldr(c, MARGIN_X + 352.5, topY, "", '{:,.2f} €'.format(pago.importe) )
         c.drawString(MARGIN_X + 372.5, topY, "EFECTIVO")
+        pago.recibo_creado = True
+        pago.save()
         topY -= lineY
 
     for pago in order.pagos_no_caja.all():
         field(c, MARGIN_X + 10, topY, pago.dia.strftime('%d/%m/%Y'), pago.desc)
         fieldr(c, MARGIN_X + 352.5, topY, "", '{:,.2f} €'.format(pago.importe) )
         c.drawString(MARGIN_X + 372.5, topY, pago.get_forma_pago_display())
+        pago.recibo_creado = True
+        pago.save()
         topY -= lineY
 
     c.roundRect(MARGIN_X, topY, 250, lineY * -2, 0, stroke=1, fill=0)

@@ -18,8 +18,8 @@ from django.urls import path, include
 from atelier.urls import atelier_patterns
 
 urlpatterns = [
-    path('', admin.site.urls),
     path('atelier/', include(atelier_patterns)),
+    path('', admin.site.urls),
     #path('admin/', admin.site.urls),
 ]
 
