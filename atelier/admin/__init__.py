@@ -4,3 +4,4 @@ from . import pedido
 from . import pagos
 from . import caja
 from . import notifications
+from . import gastos

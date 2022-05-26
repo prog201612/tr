@@ -4,17 +4,17 @@ from datetime import timedelta
 
 from django.utils.dateparse import parse_datetime
 from django.contrib.admin.views.decorators import staff_member_required
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.db.models import Sum
 from django.contrib import messages
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http import HttpResponseBadRequest
 
 from tr.settings import BASE_DIR
-from .forms import SalesCompareYearsForm, GetCSVFileForm
-from .models import Articulo, Pedido
+from .forms import SalesCompareYearsForm, GetCSVFileForm, ImportGastosFromCSV
+from .models import Articulo, Ejercicio, Pedido
 from .reports import print_order, print_order_payments
-from .helpers import handle_uploaded_file, import_csv_consumidor, import_csv_pedido, \
+from .helpers import handle_uploaded_file, import_csv_consumidor, import_csv_gasto, import_csv_pedido, \
                      getCurrencyHtml
 
 # Create your views here.
@@ -80,6 +80,41 @@ def pedido_import_from_csv(request):
         messages.add_message(request, messages.INFO, request.FILES['csv_file'].name)
 
     return redirect('/atelier/consumidor')
+
+# Gastos
+
+@staff_member_required
+def gastos_from_csv_form(request):
+    if request.user.is_superuser:
+        form = ImportGastosFromCSV()
+        context = {
+            'form':form,
+            'action': '/atelier/gastos-import-from-csv/',
+            'url_destination': '/',
+            'titol': 'Importar CSV',
+            'descripcio':'Importar %s desde un fichero en formato CSV.' % 'Gastos'
+        }
+        return render(request, 'atelier/pcr_form_p.html', context)  
+
+    return redirect('/atelier/gasto')
+
+
+@staff_member_required
+def gastos_import_from_csv(request):
+    # @user_passes_test(lambda u: u.is_superuser)
+    if request.user.is_superuser:
+        ejercicio = request.POST.get('ejercicio')
+        mes = request.POST.get('mes')
+        ejercicio_obj = get_object_or_404(Ejercicio, pk=ejercicio)
+        # Guardem el fitxer a disc
+        file_name = handle_uploaded_file(request.FILES['csv_file'])
+        # Importem les dades del fitxer csv
+        import_csv_gasto(file_name, ejercicio_obj, mes)
+        # Eliminem el fitxer.
+        os.remove(file_name)
+        #messages.add_message(request, messages.INFO, request.FILES['csv_file'].name)
+
+    return redirect('/atelier/gasto')
 
 
 ##################################

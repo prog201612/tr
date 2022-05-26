@@ -1,7 +1,7 @@
 import os
 import requests
 
-from .models import Consumidor, Pedido
+from .models import Consumidor, Gasto
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -75,7 +75,7 @@ def import_csv_pedido(file):
     for line in lines:
         row = line.split(';')
         print("[ ROW ]", row)
-        _, created = Pedido.objects.get_or_create(
+        _, created = Gasto.objects.get_or_create(
             # El id és el row[0] i és autoincrement
             consumidor = row[1],
             dia = row[2],
@@ -85,6 +85,28 @@ def import_csv_pedido(file):
             lugar_evento = row[6],
             nos_conocio = row[7]
         )
+
+
+def import_csv_gasto(file, ejercicio, mes):
+    #print(file)
+    #text_file_unix_to_windows(file, 10)
+    f = open(file)
+    lines = f.readlines()
+    #lines = f.read().split('\n') # '\r\n'
+    # lines = [line.rstrip('\r\n') for line in open(file)]
+    for line in lines:
+        row = line.split(';')
+        #print("[ ROW ]", mes, f"conta: {row[0]}", f"nom: {row[1]}", f"debe: {row[4]}", f"haber: {row[5]}")
+        gasto, created = Gasto.objects.get_or_create(
+            # El id és el row[0] i és autoincrement
+            ejercicio = ejercicio,
+            cuenta = row[0],
+            nombre = row[1],
+        )
+        debe = float(row[4].replace(".", "").replace(",","."))
+        haber = float(row[5].replace(".", "").replace(",","."))
+        setattr(gasto, mes, (debe - haber) * -1)
+        gasto.save()
 
 
 def text_file_unix_to_windows(file, total_cols):
@@ -107,7 +129,7 @@ def text_file_unix_to_windows(file, total_cols):
             # Netejem retorns de carro, unix o win
             coln = ""
             col1 = ""
-            print("- COLS: ", col)
+            #print("- COLS: ", col)
             if '\r\n' in col: # line[-2:] == 
                 coln, col1 = col.split('\r\n')
                 line += coln
@@ -116,7 +138,7 @@ def text_file_unix_to_windows(file, total_cols):
                 line += coln
             # La nova línia té format windows
             new_lines += line + '\r\n'
-            print("[ " + line + " ]")
+            #print("[ " + line + " ]")
             col_count = 2
             line = col1 + ";"
         else:

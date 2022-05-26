@@ -13,6 +13,8 @@ from django.db.models.signals import post_save
 from django.db.models import Sum
 from django.contrib.auth.models import User
 
+from atelier.utils import get_currency_representation
+
 # Create your models here.
 
 
@@ -619,3 +621,102 @@ class Notification(models.Model):
                 description=description
             )
             notification.save()
+
+
+#############
+# Ejercicio #
+#############
+
+class Ejercicio(models.Model):
+    nombre = models.CharField(max_length=30)
+
+    def __str__(self) -> str:
+        return self.nombre
+
+    class Meta:
+        ordering = ["-nombre",]
+
+
+class Gasto(models.Model):
+    ejercicio = models.ForeignKey(Ejercicio, on_delete=models.CASCADE)
+    cuenta = models.CharField(max_length=10)
+    nombre = models.CharField(max_length=50, blank=True, null=True)
+
+    setiembre = models.DecimalField(max_digits=9, decimal_places=2, default=0)
+    octubre = models.DecimalField(max_digits=9, decimal_places=2, default=0)
+    noviembre = models.DecimalField(max_digits=9, decimal_places=2, default=0)
+    diciembre = models.DecimalField(max_digits=9, decimal_places=2, default=0)
+    enero = models.DecimalField(max_digits=9, decimal_places=2, default=0)
+    febrero = models.DecimalField(max_digits=9, decimal_places=2, default=0)
+    marzo = models.DecimalField(max_digits=9, decimal_places=2, default=0)
+    abril = models.DecimalField(max_digits=9, decimal_places=2, default=0)
+    mayo = models.DecimalField(max_digits=9, decimal_places=2, default=0)
+    junio = models.DecimalField(max_digits=9, decimal_places=2, default=0)
+    julio = models.DecimalField(max_digits=9, decimal_places=2, default=0)
+    agosto = models.DecimalField(max_digits=9, decimal_places=2, default=0)
+
+    descripcion = models.CharField(max_length=250, blank=True, null=True)
+
+    class Meta:
+        ordering = ["-ejercicio__nombre", "cuenta", "-nombre"]
+
+
+    @property
+    def setiembre_(self):
+        return get_currency_representation(self.setiembre)
+
+    @property
+    def octubre_(self):
+        return get_currency_representation(self.octubre)
+
+    @property
+    def noviembre_(self):
+        return get_currency_representation(self.noviembre)
+
+    @property
+    def diciembre_(self):
+        return get_currency_representation(self.diciembre)
+
+    @property
+    def enero_(self):
+        return get_currency_representation(self.enero)
+
+    @property
+    def febrero_(self):
+        return get_currency_representation(self.febrero)
+
+    @property
+    def marzo_(self):
+        return get_currency_representation(self.marzo)
+
+    @property
+    def abril_(self):
+        return get_currency_representation(self.abril)
+
+    @property
+    def mayo_(self):
+        return get_currency_representation(self.mayo)
+
+    @property
+    def junio_(self):
+        return get_currency_representation(self.junio)
+
+    @property
+    def julio_(self):
+        return get_currency_representation(self.julio)
+
+    @property
+    def agosto_(self):
+        return get_currency_representation(self.agosto)
+
+    @property
+    def total(self):
+        return self.setiembre + self.octubre + self.noviembre + self.diciembre + \
+               self.enero + self.febrero + self.marzo + self.abril + \
+               self.mayo + self.junio + self.julio + self.agosto
+
+    @property
+    def total_(self):
+        return get_currency_representation(self.total, positive_color='aqua', negative_color='fuchsia')
+
+    

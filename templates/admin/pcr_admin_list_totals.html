@@ -1,0 +1,5 @@
+{% if totals_count > 0 %}
+<tr align="right">
+    {% for total in totals_row %}<td>{{ total }}</td>{% endfor %}
+</tr>
+{% endif %}
