@@ -58,7 +58,7 @@ def textarea(c, text, x, y, lineY, max_lines):
     topY = y
     lines_in_variacions = max_lines + 1
     for line in variacions_lines:     
-        # Línies en blanck
+        # Línies en blank
         if line == '\n':
             topY -= lineY
             lines_in_variacions -= 1
@@ -68,7 +68,7 @@ def textarea(c, text, x, y, lineY, max_lines):
         words = line.split()
         line_from_words = ""
         for word in words:
-            if len(line_from_words) + len(word) < 90:
+            if len(line_from_words) + len(word) < 97:
                 line_from_words += word + ' '
             else:
                 # Pintem les línies que ocupen tot l'espai
@@ -89,6 +89,37 @@ def textarea(c, text, x, y, lineY, max_lines):
         if lines_in_variacions == 1:
             break        
     return topY - (lineY + lineY * lines_in_variacions)
+
+
+def textareaV2(c, text, x, y, lineY, max_lines, max_width):
+    topY = y
+    lines = []
+    line = ''
+    # Creem les línies segons el tamany màxim
+    for char in text:
+        if char == '\r':
+            continue
+        if char == '\n':
+            lines.append(line)
+            line = ''
+            continue
+        actual_width = c.stringWidth(line + char, "Helvetica", 12)
+        if actual_width > max_width:
+            if char != ' ' and line[-1] != ' ':
+                line += '-'
+            lines.append(line)
+            line = ''
+        line += char
+    lines.append(line)
+
+    # Imprimim les línies
+    for line in lines:
+        c.drawString(MARGIN_X + 10, topY, line)
+        topY -= lineY
+        max_lines -= 1
+        if max_lines == 0:
+            break
+
 
 
 # REPORT: PEDIDOS ########################################################
@@ -140,13 +171,18 @@ def print_order(order):
         topY -= lineY  
 
     # Round rect
-    c.roundRect(MARGIN_X, topY, 500, -150, 0, stroke=1, fill=0)
+    c.roundRect(MARGIN_X, topY, 500, -350, 0, stroke=1, fill=0)
     topY -= lineY * 1.5
 
     # VARIACIONES
     text_bold(c, MARGIN_X + 10,topY,"VARIACIONES:")
     topY -= lineY
-    topY = textarea(c, order.variaciones, x=MARGIN_X + 10, y=topY, lineY=lineY, max_lines=7)
+    #c.setFont("Helvetica", 10)
+    #topY = textarea(c, order.variaciones, x=MARGIN_X + 10, y=topY, lineY=lineY, max_lines=20)
+    #c.setFont("Helvetica", 12)
+    max_lines = 20
+    textareaV2(c, order.variaciones, x=MARGIN_X + 10,  y=topY, lineY=lineY, max_lines=20, max_width=MARGIN_X_RIGHT - 70)
+    topY -= max_lines * lineY + lineY * 3
 
     field(c, MARGIN_X + 10, topY,  "Contorno pecho total.....:", xstr(order.contorno_pecho_total))
     field(c, MARGIN_X + 250, topY, "Contorno cintura........:",xstr(order.contorno_cintura))

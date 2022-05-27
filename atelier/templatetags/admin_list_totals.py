@@ -10,7 +10,7 @@ def totals_row(cl):
     totals = []
     for field_name in cl.list_display:
         field_name = field_name.replace('_', '')
-        print("[ H e Y ] -> ", field_name)
+        #print("[ H e Y ] -> ", field_name)
         if field_name in total_functions:
             # result_list: és el QuerySet del ModelAdmin.
             #         Exemple:  <QuerySet [<MaterialsStock: M67 - 121 - 27 - BOB - [3.00]>,
