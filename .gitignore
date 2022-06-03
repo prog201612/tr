@@ -108,7 +108,7 @@ venv.bak/
 *.porsi
 *.csv
 pcr.env
-settings.py
+tr/settings.py
 db.sqlite3.*
 .DS_Store
 # migracions

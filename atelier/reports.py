@@ -322,6 +322,9 @@ def print_order_payments(order):
         c.drawString(MARGIN_X + 372.5, topY, pago.get_forma_pago_display())
         pago.recibo_creado = True
         pago.save()
+        if not pago.pedido.iva:
+            pago.pedido.iva = True
+            pago.pedido.save()
         topY -= lineY
 
     c.roundRect(MARGIN_X, topY, 250, lineY * -2, 0, stroke=1, fill=0)

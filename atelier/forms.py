@@ -19,7 +19,7 @@ class GetCSVFileForm(forms.Form):
 
 
 class ImportGastosFromCSV(forms.Form):
-    ejercicio = forms.ChoiceField(choices=[(f"{ejercicio.pk}", ejercicio.nombre) for ejercicio in Ejercicio.objects.all()])
+    #ejercicio = forms.ChoiceField(choices=[(f"{ejercicio.pk}", ejercicio.nombre) for ejercicio in Ejercicio.objects.all()])
     mes = forms.ChoiceField(choices=[
         ("setiembre", "Setiembre"),
         ("octubre", "Octubre"),
@@ -35,3 +35,8 @@ class ImportGastosFromCSV(forms.Form):
         ("agosto", "Agosto"),
     ])
     csv_file = forms.FileField(label="CSV -> Sin cabeceras, solo con los datos a cargar")
+
+
+class GastosGenerarFacturacionForm(forms.Form):
+    #ejercicio = forms.ChoiceField(choices=[(f"{ejercicio.pk}", ejercicio.nombre) for ejercicio in Ejercicio.objects.all()])
+    pass

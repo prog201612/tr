@@ -11,7 +11,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http import HttpResponseBadRequest
 
 from tr.settings import BASE_DIR
-from .forms import SalesCompareYearsForm, GetCSVFileForm, ImportGastosFromCSV
+from .forms import GastosGenerarFacturacionForm, SalesCompareYearsForm, GetCSVFileForm, ImportGastosFromCSV
 from .models import Articulo, Ejercicio, Pedido
 from .reports import print_order, print_order_payments
 from .helpers import handle_uploaded_file, import_csv_consumidor, import_csv_gasto, import_csv_pedido, \
@@ -254,3 +254,60 @@ def pdf_pedido_pagos(request, pk):
     file = 'pdf/' + print_order_payments(pedido)
     return get_pdf_form_view(request, action='/atelier/pedido/', titol='Pagos de un Pedido', files=[file,], url_destination='/atelier/pedido/')
  
+
+
+##########################################
+# REGULARIZAR PAGOS CON RECIBO ENTREGADO #
+##########################################
+
+def regularizar_pagos_view(request):
+    pagos_count = 0
+    pagos_nocaja_count = 0
+    for pedido in Pedido.objects.all():
+        if pedido.pendiente() <= 0:
+            # pagos
+            for pago in pedido.pagos.all():
+                pago.recibo_creado = True
+                pago.save()
+                pagos_count += 1
+            # pagos no caja
+            for pago in pedido.pagos_no_caja.all():
+                pago.recibo_creado = True
+                pago.save()
+                pagos_nocaja_count += 1
+                if not pedido.iva:
+                    pedido.iva = True
+                    pedido.save()
+
+    messages.add_message(request, messages.INFO, f"Se han regularizado {pagos_count} pagos y {pagos_nocaja_count} pagos no a caja.")
+    return redirect('/atelier/pedido/')
+
+
+
+###############################
+# GASTOS: GENERAR FACTURACIÓN #
+###############################
+
+def gastos_generar_facturacion_view(request):
+    if request.user.is_superuser:
+        # Formulari 
+        if request.method == 'GET':
+            form = GastosGenerarFacturacionForm()
+            context = {
+                'form':form,
+                'action': request.path,
+                'url_destination': '/',
+                'titol': 'Generar Facturación',
+                'descripcio':'Crea entradas para: FACTURACIÓN (+IVA), COSTE e IVA según los Pedidos de un ejercicio seleccionado.'
+            }
+            return render(request, 'atelier/pcr_form_p.html', context)
+        
+        # POST
+        ejercicio_id = request.POST.get('ejercicio')
+        ejercicio = get_object_or_404(Ejercicio, pk=ejercicio_id)
+        # Calcular valors
+        #pedidos_iva = Pedido.objects.filter(ejercicio=ejercicio)
+        
+        messages.add_message(request, messages.INFO, f"0 Entradas creadas en el ejercicio: {ejercicio}")
+
+    return redirect('/atelier/gasto')

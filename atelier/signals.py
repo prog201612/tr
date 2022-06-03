@@ -43,7 +43,7 @@ def pagonocaja_post_delete_signal(sender, instance, **kwargs):
 def ensure_caja_exists(sender, instance, **kwargs):
     """ 
         Al crear o modificar un pago en efectiu ha de tenir una caixa assignada 
-        segons el dia del pago. En cas de que no hi hagi cap caixa overta el
+        segons el dia del pago. En cas de que no hi hagi cap caixa oberta el
         validador cash_payment_week_validator ja la crea al validar el dia del
         pagament.
     """

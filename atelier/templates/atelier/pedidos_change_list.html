@@ -3,5 +3,8 @@
     {{ block.super }}
     <li>
         <a class="historylink" href="{% url 'admin:sales_compare_years' %}"><i class="fas fa-file-alt"></i> Ventas entre 2 años</a>
+        {% if user.is_superuser %}
+            <a class="historylink" href="{% url 'atelier:pedido_regularizar_pagos' %}"><i class="fas fa-file-alt"></i> Regularizar Recibo Entregado</a>
+        {% endif %}
     </li>
 {% endblock %}

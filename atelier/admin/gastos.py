@@ -31,7 +31,7 @@ class GastosAdmin(PCRModelAdmin):
     list_display = ["nombre", "setiembre_", "octubre_", "noviembre_", "diciembre_", "enero_", "febrero_", "marzo_", "abril_", "mayo_", "junio_", "julio_", "agosto_", "total_", "descripcion", "cuenta", ]
     list_filter = [FiltroGastosPorEjercicio,]
     default_filters = [
-        f"ejercicio={Ejercicio.objects.all().order_by('-nombre').first().id}", 
+        #f"ejercicio={Ejercicio.objects.all().order_by('-nombre').first().id}", 
     ]
     change_list_template = "atelier/gastos_change_list.html"
     total_functions = {'setiembre': sum, 'octubre': sum, 'noviembre': sum, 'diciembre': sum, 'enero': sum, 'febrero': sum, 'marzo': sum, 'abril': sum, 'mayo': sum, 'junio': sum, 'julio': sum, 'agosto': sum, 'total': sum, }

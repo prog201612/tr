@@ -12,6 +12,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.db.models import Sum
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator
 
 from atelier.utils import get_currency_representation
 
@@ -336,6 +337,7 @@ class Pedido(models.Model):
     nos_conocio_coment = models.TextField(verbose_name="Comentários sobre como nos conoció", null=True, blank=True)
     email_enviado = models.BooleanField(default=False)
     variaciones = models.TextField(null=True, blank=True)
+    iva = models.BooleanField(default=False)
 
     contorno_pecho_total = models.CharField(max_length=25, null=True, blank=True)
     contorno_cintura = models.CharField(max_length=25, null=True, blank=True)
@@ -402,6 +404,7 @@ class Pedido(models.Model):
 
     class Meta:
         ordering = ['-updated']
+        unique_together = ['consumidor', 'dia', 'lugar_evento', ]
 
 
 ############
@@ -630,6 +633,7 @@ class Notification(models.Model):
 
 class Ejercicio(models.Model):
     nombre = models.CharField(max_length=30)
+    anyo_inicial = models.IntegerField("año inicial", default=2015, validators = [MinValueValidator(2015)]) # , unique=True
 
     def __str__(self) -> str:
         return self.nombre
