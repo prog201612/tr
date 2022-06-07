@@ -1,20 +1,4 @@
 {% extends "admin/change_form.html" %} {% load i18n %}
-{#
-{% block object-tools-items %}
-    {{ block.super }}
-    {% if perms.atelier.view_pedido and original.pk %}
-        <li>
-            <a class="historylink" href="{% url 'atelier:pdf-pedido' original.pk %}"><i class="fas fa-file-pdf"></i> PDF</a>
-        </li>
-    {% endif %}
-
-    {% if perms.atelier.view_pago and original.pk %}
-        <li>
-            <a class="historylink" href="{% url 'atelier:pdf-pedido-pagos' original.pk %}"><i class="fas fa-euro-sign"></i> PDF</a>
-        </li>
-    {% endif %}
-{% endblock %}
-#}
 
 {% block after_related_objects %}
     {{ block.super }}
