@@ -287,6 +287,11 @@ class Consumidor(models.Model):
     created = models.DateTimeField(auto_now_add=True) # només al crear
     updated = models.DateTimeField(auto_now=True) # cada modificació
 
+    def save(self):
+        # Capitalitzem cada paraula del nom
+        self.nombre =  " ".join( [word.capitalize() for word in self.nombre.split()] )
+        return super().save()
+
     def __str__(self):
         return self.nombre
 
