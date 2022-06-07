@@ -1,6 +1,7 @@
 #-*- coding: utf-8 -*-
 import os
 from datetime import timedelta
+from calendar import monthrange
 
 from django.utils.dateparse import parse_datetime
 from django.contrib.admin.views.decorators import staff_member_required
@@ -9,13 +10,14 @@ from django.db.models import Sum
 from django.contrib import messages
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http import HttpResponseBadRequest
+from django.db.models import Q
 
 from tr.settings import BASE_DIR
 from .forms import GastosGenerarFacturacionForm, SalesCompareYearsForm, GetCSVFileForm, ImportGastosFromCSV
-from .models import Articulo, Ejercicio, Pedido
+from .models import Articulo, Ejercicio, Pedido, Gasto
 from .reports import print_order, print_order_payments
 from .helpers import handle_uploaded_file, import_csv_consumidor, import_csv_gasto, import_csv_pedido, \
-                     getCurrencyHtml
+                     getCurrencyHtml, round_half_up
 
 # Create your views here.
 
@@ -288,6 +290,65 @@ def regularizar_pagos_view(request):
 # GASTOS: GENERAR FACTURACIÓN #
 ###############################
 
+MESES = {
+    9: "setiembre",
+    10: "octubre",
+    11: "noviembre",
+    12: "diciembre",
+    1: "enero",
+    2: "febrero",
+    3: "marzo",
+    4: "abril",
+    5: "mayo",
+    6: "junio",
+    7: "julio",
+    8: "agosto",
+}
+
+def gastos_por_mes(ejercicio, anyo, mes):
+    _, days_in_month = monthrange(anyo, mes) # (2, 29)
+    dia_ini = f"{anyo}-{mes}-01"
+    dia_fin = f"{anyo}-{mes}-{days_in_month}"
+    pedidos = Pedido.objects.filter(dia__gte=dia_ini, dia__lte=dia_fin)
+    #print(f"[ P.c.r. ] -> ini: {dia_ini}, fi: {dia_fin}")
+
+    '''
+    _, days_in_month = monthrange(anyo, mes) # (2, 29)
+    dia_ini = Q(dia__gte=f"{anyo}-{mes}-01")
+    dia_fin = Q(dia__lte=f"{anyo}-{mes}-{days_in_month}")
+    pedidos = Pedido.objects.filter(dia_ini & dia_fin)
+    '''
+
+    # Calcular valors
+    iva_percent = 21
+    total_iva = 0
+    total = 0
+    coste_total = 0
+    for pedido in pedidos:
+        #print(f"A: {anyo}, M: {mes} -> {pedido.dia} Pedido: {pedido} ==> {pedido.importe_total()} ")
+        total = pedido.importe_total() + total
+        iva = float(pedido.importe_total() * iva_percent / 100)
+        total_iva = round_half_up(iva + total_iva, 2)
+        coste_total = pedido.coste_total() + coste_total
+    #pedidos_iva = Pedido.objects.filter(ejercicio=ejercicio)
+    #print(f"total_iva: {total_iva}, total: {total}, coste_total: {coste_total}")
+
+    # IVA
+    gasto, created = Gasto.objects.get_or_create(ejercicio=ejercicio, cuenta = "4300000000", nombre = "FACTURACION (+IVA)", )
+    setattr(gasto, MESES[mes], total)
+    gasto.save()
+
+    # coste
+    gasto, created = Gasto.objects.get_or_create(ejercicio=ejercicio, cuenta = "", nombre = "COSTE", )
+    setattr(gasto, MESES[mes], coste_total * -1)
+    gasto.save()
+
+    # total
+    gasto, created = Gasto.objects.get_or_create(ejercicio=ejercicio, cuenta = "4770000001", nombre = "IVA", )
+    setattr(gasto, MESES[mes], total_iva * -1)
+    gasto.save()
+
+
 def gastos_generar_facturacion_view(request):
     if request.user.is_superuser:
         # Formulari 
@@ -305,9 +366,17 @@ def gastos_generar_facturacion_view(request):
         # POST
         ejercicio_id = request.POST.get('ejercicio')
         ejercicio = get_object_or_404(Ejercicio, pk=ejercicio_id)
-        # Calcular valors
-        #pedidos_iva = Pedido.objects.filter(ejercicio=ejercicio)
-        
-        messages.add_message(request, messages.INFO, f"0 Entradas creadas en el ejercicio: {ejercicio}")
+        # Un exercici va de setempre del primer any a agost del segon
+        meses1 = [9, 10, 11, 12] # 2020
+        meses2 = [1, 2, 3, 4, 5, 6, 7, 8] # 2021
 
+        # Pedidos por ejercicio
+        anyo = ejercicio.anyo_inicial
+        for mes in meses1:
+            gastos_por_mes(ejercicio, anyo, mes)
+
+        for mes in meses2:
+            gastos_por_mes(ejercicio, anyo + 1, mes)
+
+    messages.add_message(request, messages.INFO, f"Valores actualizados para el ejercicio: {ejercicio}")
     return redirect('/atelier/gasto')

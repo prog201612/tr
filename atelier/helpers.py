@@ -1,5 +1,6 @@
 import os
 import requests
+import decimal
 
 from .models import Consumidor, Gasto
 
@@ -17,6 +18,11 @@ def getCurrencyHtml(number):
         ret = f'<span style="color:red;">{n}</span>'
     return ret
 
+def round_half_up(value, digits):
+    # 1.155 = 1.16, 1.154 = 1.15
+    context = decimal.getcontext()
+    context.rounding = decimal.ROUND_HALF_UP
+    return float( round(decimal.Decimal(value), digits) )
 
 ########
 # MAIL #

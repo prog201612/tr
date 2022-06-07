@@ -1,8 +1,8 @@
 #-*- coding: utf-8 -*-
 from django.contrib import admin
 from django.contrib import messages
-from django.shortcuts import render
-from django.urls import path
+from django.shortcuts import redirect, render
+from django.urls import path, reverse_lazy
 
 from atelier.models import Consumidor, Pedido, Pago, Articulo, Caja, PagoNoCaja, \
                            Notification, get_year_week_int_by_date
@@ -265,6 +265,7 @@ class PedidoAdmin(PCRModelAdmin):
             return obj.activo
         return True
 
+
     # URLS / VIEWS ###########################################################
 
     def get_urls(self):
@@ -363,4 +364,44 @@ class PedidoAdmin(PCRModelAdmin):
             self.message_user(request, 'Selecciona un y solo un Pedido...', level=messages.WARNING)
 
     mark_as_completed.short_description = "Marcar el pedido como completado..."
+
+
+    # OVERRIDES
+    '''
+    def save_model(self, request, obj, form, changed):
+        # https://stackoverflow.com/questions/14126371/in-django-how-to-override-the-save-and-continue-feature
+        #super(PedidoAdmin, self).save_model(request, obj, form, changed)
+        if '_pdf_pedido' in request.POST:
+            # add your code here
+            print("[ p.c.r. ] - Pedido::save_model")
+            print( dir(request) )
+            url = reverse_lazy(f'atelier:pdf-pedido', kwargs={ 'pk': obj.pk }) 
+            request['post_url_continue'] = url
+            #return redirect( reverse_lazy(f'atelier:pdf-pedido', kwargs={ 'pk': obj.pk }) )
+            result = super(PedidoAdmin, self).change_view(request, str(obj.pk), form, changed )
+            result['Location'] = url
+            return result
+    '''
+
+    # Al change_list de Pedidos volem que al premer botons PDF es guardi abans de crear el pdf
+    
+    def response_add(self, request, obj, post_url_continue=None):
+        if '_pdf_pedido' in request.POST:
+            url = reverse_lazy(f'atelier:pdf-pedido', kwargs={ 'pk': obj.pk }) 
+            return redirect(url)
+        elif '_pdf_pedido_pagos' in request.POST:
+            url = reverse_lazy(f'atelier:pdf-pedido-pagos', kwargs={ 'pk': obj.pk }) 
+            return redirect(url)
+        return super(PedidoAdmin, self).response_add(request, obj, post_url_continue)
+
+    def response_change(self, request, obj):
+        if '_pdf_pedido' in request.POST:
+            url = reverse_lazy(f'atelier:pdf-pedido', kwargs={ 'pk': obj.pk }) 
+            return redirect(url)
+        elif '_pdf_pedido_pagos' in request.POST:
+            url = reverse_lazy(f'atelier:pdf-pedido-pagos', kwargs={ 'pk': obj.pk }) 
+            return redirect(url)
+        return super(PedidoAdmin, self).response_change(request, obj)
+    
+        
 

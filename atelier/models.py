@@ -390,6 +390,13 @@ class Pedido(models.Model):
         l = [a.desc for a in self.articulos.all()]
         return ", ".join(l)
 
+    def coste_total(self):
+        l = [a.coste for a in self.articulos.all()]
+        if l == []:
+            return 0
+        else:
+            return reduce((lambda x, y: x + y), l) # suma els elements del array
+
     def importe_total(self):
         l = [a.importe for a in self.articulos.all()]
         if l == []:
@@ -633,7 +640,7 @@ class Notification(models.Model):
 
 class Ejercicio(models.Model):
     nombre = models.CharField(max_length=30)
-    anyo_inicial = models.IntegerField("año inicial", default=2015, validators = [MinValueValidator(2015)]) # , unique=True
+    anyo_inicial = models.IntegerField("año inicial", default=2015, validators = [MinValueValidator(2015)], unique=True)
 
     def __str__(self) -> str:
         return self.nombre

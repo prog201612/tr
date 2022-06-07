@@ -1,15 +1,28 @@
-{% extends "admin/change_form.html" %} {% load i18n %} 
+{% extends "admin/change_form.html" %} {% load i18n %}
+{#
 {% block object-tools-items %}
     {{ block.super }}
-    {% if perms.atelier.view_pedido %}
+    {% if perms.atelier.view_pedido and original.pk %}
         <li>
             <a class="historylink" href="{% url 'atelier:pdf-pedido' original.pk %}"><i class="fas fa-file-pdf"></i> PDF</a>
         </li>
     {% endif %}
 
-    {% if perms.atelier.view_pago %}
+    {% if perms.atelier.view_pago and original.pk %}
         <li>
             <a class="historylink" href="{% url 'atelier:pdf-pedido-pagos' original.pk %}"><i class="fas fa-euro-sign"></i> PDF</a>
         </li>
     {% endif %}
 {% endblock %}
+#}
+
+{% block after_related_objects %}
+    {{ block.super }}
+    {% if perms.atelier.view_pedido and original.pk %}
+        <div class="submit-row">
+            <input type="submit" class="historylink" name="_pdf_pedido" value="PDF"/> 
+            <input type="submit" class="historylink" name="_pdf_pedido_pagos" value="PDF PAGOS"/> 
+        </div>
+    {% endif %}
+{% endblock %}
+
