@@ -266,20 +266,21 @@ def regularizar_pagos_view(request):
     pagos_count = 0
     pagos_nocaja_count = 0
     for pedido in Pedido.objects.all():
-        if pedido.pendiente() <= 0:
-            # pagos
-            for pago in pedido.pagos.all():
-                pago.recibo_creado = True
-                pago.save()
-                pagos_count += 1
-            # pagos no caja
-            for pago in pedido.pagos_no_caja.all():
+        # if pedido.pendiente() <= 0:
+        # pagos
+        for pago in pedido.pagos.filter(recibo_creado=False):
+            pago.recibo_creado = True
+            pago.save()
+            pagos_count += 1
+        # pagos no caja
+        for pago in pedido.pagos_no_caja.all():
+            if not pago.recibo_creado:
                 pago.recibo_creado = True
                 pago.save()
                 pagos_nocaja_count += 1
-                if not pedido.iva:
-                    pedido.iva = True
-                    pedido.save()
+            if not pedido.iva:
+                pedido.iva = True
+                pedido.save()
 
     messages.add_message(request, messages.INFO, f"Se han regularizado {pagos_count} pagos y {pagos_nocaja_count} pagos no a caja.")
     return redirect('/atelier/pedido/')
