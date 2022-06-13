@@ -432,7 +432,7 @@ class Articulo(models.Model):
     pedido = models.ForeignKey('Pedido', on_delete=models.CASCADE, related_name='articulos')
     desc = models.CharField(verbose_name="Descripción", max_length=100)
     importe = models.DecimalField(max_digits=9, decimal_places=2, default=0)
-    coste = models.DecimalField(max_digits=9, decimal_places=2, default=0)
+    coste = models.DecimalField("referencia", max_digits=9, decimal_places=2, default=0)
     serie = models.CharField(max_length=15, default="", null=True, blank=True)
     color = models.CharField(max_length=15, default="", null=True, blank=True)
     talla = models.CharField(choices=TALLAS, default='--', max_length=2)
