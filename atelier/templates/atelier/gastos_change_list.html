@@ -4,8 +4,11 @@
     {{ block.super }}
     <li>
         <a class="historylink" href="{% url 'atelier:gastos-from-csv' %}"><i class="far fa-file"></i> CSV</a>
-        {% if user.is_superuser %}
-            <a class="historylink" href="{% url 'atelier:gastos-generar-facturacion' %}"><i class="far fa-calculator"></i> GENERAR FACTURACIÓN</a>
-        {% endif %}
     </li>
+
+    {% if user.is_superuser %}
+        <li>
+            <a class="historylink" href="{% url 'atelier:gastos-generar-facturacion' %}"><i class="far fa-calculator"></i> GENERAR FACTURACIÓN</a>
+        </li>
+    {% endif %}
 {% endblock %}

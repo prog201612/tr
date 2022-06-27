@@ -34,7 +34,7 @@ class ImportGastosFromCSV(forms.Form):
         ("julio", "Julio"),
         ("agosto", "Agosto"),
     ])
-    csv_file = forms.FileField(label="CSV -> Sin cabeceras, solo con los datos a cargar")
+    csv_file = forms.FileField(label="Excel guardar com -> CSV codificado UTF-8 (delimitado por coma). CSV -> Sin cabeceras, solo con los datos a cargar.")
 
 
 class GastosGenerarFacturacionForm(forms.Form):

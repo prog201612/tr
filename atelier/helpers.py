@@ -93,7 +93,11 @@ def import_csv_pedido(file):
         )
 
 
-def import_csv_gasto(file, ejercicio, mes):
+def import_csv_gasto_v2(file, ejercicio, mes):
+    """
+    Aquesta funció carrega les dades d'un csv, si l'exercici, conta i nom és el mateix
+    sobrescriu les dades del total del més en questió.  NO S'UTILITZA.
+    """
     #print(file)
     #text_file_unix_to_windows(file, 10)
     f = open(file)
@@ -113,6 +117,46 @@ def import_csv_gasto(file, ejercicio, mes):
         haber = float(row[5].replace(".", "").replace(",","."))
         setattr(gasto, mes, (debe - haber) * -1)
         gasto.save()
+
+
+def import_csv_gasto(file, ejercicio, mes):
+    """
+    A diferència de la funció anterior, si dins del mateix csv, es repeteix:
+    l'exercici, conta i nom, aquest s'acumula. Però sobreescriu igualment
+    el valor que ja estigui a la bd si ja existeix. ÉS LA QUE S'UTILITZA ACTUALMENT.
+    """
+    f = open(file)
+    lines = f.readlines()
+
+    # si hi ha dades repetides dins del csv les acomulem en lloc de sobreescriureles.
+    data = {}
+    for line in lines:
+        row = line.split(';')
+        debe = float(row[4].replace(".", "").replace(",","."))
+        haber = float(row[5].replace(".", "").replace(",","."))
+        key = f'{ejercicio}-{row[0]}-{row[1]}'
+        if key in data:
+            data[key]['total'] += (debe - haber) * -1
+        else:
+            data[key] = {
+                'ejercicio': ejercicio,
+                'cuenta': row[0],
+                'nombre': row[1],
+                'total': (debe - haber) * -1,
+            }
+
+    # Insertem o actualitzem les dades preprocessades del csv a la bd.
+    for key in data:
+        row = data[key]
+        gasto, created = Gasto.objects.get_or_create(
+            # El id és el row[0] i és autoincrement
+            ejercicio = row['ejercicio'],
+            cuenta = row['cuenta'],
+            nombre = row['nombre'],
+        )
+        setattr(gasto, mes, row['total'])
+        gasto.save()
+
 
 
 def text_file_unix_to_windows(file, total_cols):
