@@ -1,8 +1,11 @@
 import os
+from django.shortcuts import get_object_or_404
 import requests
 import decimal
 
-from .models import Consumidor, Gasto
+from atelier.utils import str_clean_no_numbers
+
+from .models import Consumidor, Ejercicio, Gasto
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -131,6 +134,9 @@ def import_csv_gasto(file, ejercicio, mes):
     # si hi ha dades repetides dins del csv les acomulem en lloc de sobreescriureles.
     data = {}
     for line in lines:
+        if len(line) < 8:
+            continue
+        print("[LINE] - ", len(line))
         row = line.split(';')
         debe = float(row[4].replace(".", "").replace(",","."))
         haber = float(row[5].replace(".", "").replace(",","."))
@@ -140,20 +146,23 @@ def import_csv_gasto(file, ejercicio, mes):
         else:
             data[key] = {
                 'ejercicio': ejercicio,
-                'cuenta': row[0],
+                'cuenta': str_clean_no_numbers(row[0]),
                 'nombre': row[1],
                 'total': (debe - haber) * -1,
             }
 
     # Insertem o actualitzem les dades preprocessades del csv a la bd.
+    print("ejercicio:", ejercicio)
     for key in data:
         row = data[key]
+        print("-->", f"[{row['cuenta']}]", row['cuenta'][:10], int(row['cuenta']))
         gasto, created = Gasto.objects.get_or_create(
             # El id és el row[0] i és autoincrement
-            ejercicio = row['ejercicio'],
-            cuenta = row['cuenta'],
-            nombre = row['nombre'],
+            ejercicio = ejercicio, # row['ejercicio'],
+            cuenta = row['cuenta'][:10],
+            # nombre = row['nombre'],
         )
+        setattr(gasto, "nombre", row['nombre'])
         setattr(gasto, mes, row['total'])
         gasto.save()
 

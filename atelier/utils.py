@@ -13,3 +13,12 @@ def get_currency_representation(value, positive_color='green', negative_color='r
     return format_html(
         '<span style="color:{};text-align:right;width:100%;display:inline-block;">{}</span>', color, '{:0,.2f}'.format(value)) #  €
 
+
+
+def str_clean_no_numbers(text):
+    numbers = "12345678990"
+    clean = ""
+    for l in text:
+        if l in numbers:
+                clean += l
+    return clean
