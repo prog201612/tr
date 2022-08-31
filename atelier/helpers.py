@@ -140,7 +140,7 @@ def import_csv_gasto(file, ejercicio, mes):
         row = line.split(';')
         debe = float(row[4].replace(".", "").replace(",","."))
         haber = float(row[5].replace(".", "").replace(",","."))
-        key = f'{ejercicio}-{row[0]}-{row[1]}'
+        key = f'{ejercicio}-{row[0]}' # -{row[1]}
         if key in data:
             data[key]['total'] += (debe - haber) * -1
         else:
