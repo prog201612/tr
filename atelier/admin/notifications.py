@@ -6,6 +6,7 @@ from atelier.models import Notification, NotificationTypeXUser
 
 from .admin_global import PCRModelAdmin
 
+admin.AdminSite.enable_nav_sidebar = False
 
 #################
 # NOTIFICATIONS #

@@ -2,6 +2,8 @@ from django.contrib import admin
 
 from atelier.models import Consumidor 
 
+admin.AdminSite.enable_nav_sidebar = False
+
 ##############
 # CONSUMIDOR ##################################################
 ##############

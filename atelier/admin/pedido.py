@@ -15,6 +15,8 @@ from atelier.forms import SalesCompareYearsForm
 
 from .admin_global import PCRModelAdmin
 
+admin.AdminSite.enable_nav_sidebar = False
+
 
 ##########
 # PEDIDO ######################################################

@@ -14,6 +14,8 @@ from atelier.models import NOTIFICATION_TYPE_BOX_CLOSED
 from atelier.helpers import send_mailgun_mail
 from tr.settings import BASE_DIR, MAILGUN_AUTHORIZED_LIST
 
+admin.AdminSite.enable_nav_sidebar = False
+
 
 #######
 # CAJA ######################################################

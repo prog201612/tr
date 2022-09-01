@@ -9,6 +9,8 @@ from django.urls import path
 from tr.settings import BASE_DIR
 from atelier.views import get_pdf_form_view
 
+admin.AdminSite.enable_nav_sidebar = False
+
 # GLOBAL ACTIONS
 
 def export_csv_action(self, request, queryset):

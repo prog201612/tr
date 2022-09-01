@@ -3,6 +3,8 @@ from django.contrib import admin
 from atelier.models import Gasto, Ejercicio
 from .base import PCRModelAdmin
 
+admin.AdminSite.enable_nav_sidebar = False
+
 # F i l t e r s
 
 class FiltroGastosPorEjercicio(admin.SimpleListFilter):

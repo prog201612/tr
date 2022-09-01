@@ -3,6 +3,8 @@ from django.contrib import admin
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
+admin.AdminSite.enable_nav_sidebar = False
+
 # P C R    M o d e l   A d m i n
 
 class PCRModelAdmin(admin.ModelAdmin):

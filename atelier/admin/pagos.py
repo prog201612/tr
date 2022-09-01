@@ -3,6 +3,8 @@ from django.contrib import admin
 
 from atelier.models import Pago, PagoNoCaja
 
+admin.AdminSite.enable_nav_sidebar = False
+
 #########
 # PAGOS ######################################################
 #########
