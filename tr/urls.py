@@ -16,8 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from atelier.urls import atelier_patterns
+from atelier.urls_api import api_patterns
 
 urlpatterns = [
+    path('api/', include(api_patterns)),
     path('atelier/', include(atelier_patterns)),
     path('', admin.site.urls),
     #path('admin/', admin.site.urls),

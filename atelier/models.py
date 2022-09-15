@@ -367,6 +367,9 @@ class Pedido(models.Model):
 
     # IMPORTES
 
+    def nombre_consumidor(self):
+        return self.consumidor.nombre
+
     def total_pagado(self):
         total = decimal.Decimal(0.0)
         for pago in self.pagos.all():
