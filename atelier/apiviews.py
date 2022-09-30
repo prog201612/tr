@@ -15,3 +15,15 @@ class ConsumidorViewSet(viewsets.ModelViewSet):
 class PedidoViewSet(viewsets.ModelViewSet):
     queryset = models.Pedido.objects.all()
     serializer_class = serializers.PedidoSerializer
+
+# A r t i c u l o
+
+class ArticuloInLineList(generics.ListCreateAPIView):
+    def get_queryset(self):
+        queryset = models.Articulo.objects.filter(pedido=self.kwargs["pk"])
+        return queryset
+    serializer_class = serializers.ArticuloSerializer
+
+class ArticuloInLineCrud(generics.RetrieveUpdateDestroyAPIView):
+    queryset = models.Articulo.objects.all()
+    serializer_class = serializers.ArticuloSerializer

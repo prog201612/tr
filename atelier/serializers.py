@@ -29,3 +29,10 @@ class PedidoSerializer(serializers.ModelSerializer):
 
     # Readonly fields
     nombre_consumidor = serializers.ReadOnlyField()
+    pendiente = serializers.ReadOnlyField()
+
+
+class ArticuloSerializer(serializers.ModelSerializer):
+    class Meta:
+        model= models.Articulo
+        fields = '__all__'
