@@ -36,3 +36,11 @@ class ArticuloSerializer(serializers.ModelSerializer):
     class Meta:
         model= models.Articulo
         fields = '__all__'
+
+
+class PagoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model= models.Pago
+        fields = '__all__'
+
+    caja_cerrada = serializers.ReadOnlyField()

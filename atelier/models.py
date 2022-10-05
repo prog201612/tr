@@ -534,6 +534,9 @@ class Pago(models.Model):
     def __str__(self):
         return "({}) - {}".format(self.pedido.pk, self.desc)   
 
+    def caja_cerrada(self):
+        return self.caja.cerrada
+
     def importe_(self): 
         color = 'green'
         if self.importe < 0:

@@ -27,3 +27,15 @@ class ArticuloInLineList(generics.ListCreateAPIView):
 class ArticuloInLineCrud(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Articulo.objects.all()
     serializer_class = serializers.ArticuloSerializer
+
+# P a g o
+
+class PagoInLineList(generics.ListCreateAPIView):
+    def get_queryset(self):
+        queryset = models.Pago.objects.filter(pedido=self.kwargs["pk"])
+        return queryset
+    serializer_class = serializers.PagoSerializer
+
+class PagooInLineCrud(generics.RetrieveUpdateDestroyAPIView):
+    queryset = models.Pago.objects.all()
+    serializer_class = serializers.PagoSerializer

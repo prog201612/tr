@@ -3,7 +3,7 @@ from django.urls import path
 
 from tr.apiviews import CustomAuthToken
 
-from .apiviews import ConsumidorViewSet, PedidoViewSet, ArticuloInLineList, ArticuloInLineCrud
+from .apiviews import ConsumidorViewSet, PagoInLineList, PagooInLineCrud, PedidoViewSet, ArticuloInLineList, ArticuloInLineCrud
 from rest_framework.authtoken import views
 # https://www.django-rest-framework.org/api-guide/authentication/#generating-tokens
 # settings: afegir app -> 'rest_framework.authtoken' i fer un migrate de la base de dades
@@ -30,4 +30,6 @@ api_patterns = ([
     path('v1/pedido/<int:pk>/articulo/', ArticuloInLineList.as_view(), name='v1_pedido_articulo_list'),
     path('v1/pedido/<int:dd>/articulo/<int:pk>/', ArticuloInLineCrud.as_view(), name='v1_pedido_articulo_crud'),
 
+    path('v1/pedido/<int:pk>/pago/', PagoInLineList.as_view(), name='v1_pedido_pagoo_list'),
+    path('v1/pedido/<int:dd>/pago/<int:pk>/', PagooInLineCrud.as_view(), name='v1_pedido_pagoo_crud'),
 ] + router.urls, 'api')
