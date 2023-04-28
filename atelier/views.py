@@ -354,7 +354,7 @@ def gastos_generar_facturacion_view(request):
     if request.user.is_superuser:
         # Formulari 
         if request.method == 'GET':
-            form = GastosGenerarFacturacionForm()
+            form = GastosGenerarFacturacionForm
             context = {
                 'form':form,
                 'action': request.path,

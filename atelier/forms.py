@@ -19,7 +19,7 @@ class GetCSVFileForm(forms.Form):
 
 
 class ImportGastosFromCSV(forms.Form):
-    ejercicio = forms.ChoiceField(choices=[(f"{ejercicio.pk}", ejercicio.nombre) for ejercicio in Ejercicio.objects.all()])
+    ejercicio = forms.ChoiceField(choices=[])
     mes = forms.ChoiceField(choices=[
         ("setiembre", "Setiembre"),
         ("octubre", "Octubre"),
@@ -36,7 +36,16 @@ class ImportGastosFromCSV(forms.Form):
     ])
     csv_file = forms.FileField(label="Excel guardar com -> CSV codificado UTF-8 (delimitado por coma). CSV -> Sin cabeceras, solo con los datos a cargar.")
 
+    def __init__(self, *args, **kwargs):
+        # https://docs.djangoproject.com/fr/3.2/ref/forms/widgets/#setting-arguments-for-widgets
+        super(ImportGastosFromCSV, self).__init__(*args, **kwargs)
+        self.fields['ejercicio'].widget.choices = [(f"{ejercicio.pk}", ejercicio.nombre) for ejercicio in Ejercicio.objects.all()] # attrs.update({'class': 'special'})
+    
 
 class GastosGenerarFacturacionForm(forms.Form):
-    ejercicio = forms.ChoiceField(choices=[(f"{ejercicio.pk}", ejercicio.nombre) for ejercicio in Ejercicio.objects.all()])
-    #pass
+    ejercicio = forms.ChoiceField(choices=[])
+    
+    def __init__(self, *args, **kwargs):
+        super(GastosGenerarFacturacionForm, self).__init__(*args, **kwargs)
+        # Cal fer-ho al constructor o si no cal reiniciar el servidor perquè es carreguin els exercicis nous
+        self.fields['ejercicio'].widget.choices = [(f"{ejercicio.pk}", ejercicio.nombre) for ejercicio in Ejercicio.objects.all()]
