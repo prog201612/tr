@@ -15,6 +15,8 @@ admin.AdminSite.enable_nav_sidebar = False
 
 def export_csv_action(self, request, queryset):
     # https://stackoverflow.com/questions/14487690/get-class-name-for-empty-queryset-in-django
+    if not request.user.is_superuser:
+        return HttpResponseRedirect(reverse('admin:index'))
     f_name = 'csv/%s.csv' % queryset.model.__name__
     file = open(os.path.join(BASE_DIR, 'static/%s' % f_name), "w")
     for row in queryset.values():
@@ -26,7 +28,7 @@ def export_csv_action(self, request, queryset):
 
 # Site wide actions
 # https://docs.djangoproject.com/en/2.2/ref/contrib/admin/actions/#making-actions-available-site-wide
-# admin.site.add_action(export_csv_action, 'Exportar_a_csv')
+admin.site.add_action(export_csv_action, 'Exportar_a_csv')
 
 
 # GLOBAL CLASSES
