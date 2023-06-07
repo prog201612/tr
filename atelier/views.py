@@ -328,8 +328,10 @@ def gastos_por_mes(ejercicio, anyo, mes):
     for pedido in pedidos:
         #print(f"A: {anyo}, M: {mes} -> {pedido.dia} Pedido: {pedido} ==> {pedido.importe_total()} ")
         total = pedido.importe_total() + total
-        iva = float(pedido.importe_total() * iva_percent / 100)
-        total_iva = round_half_up(iva + total_iva, 2)
+        iva = float(pedido.importe_total()) * 0.21 / 1.21  # * iva_percent / 100)
+        pagos_no_caja = pedido.pagos_no_caja.count()
+        if pagos_no_caja != 0:
+            total_iva = round_half_up(iva + total_iva, 2)
         coste_total = pedido.coste_total() + coste_total
     #pedidos_iva = Pedido.objects.filter(ejercicio=ejercicio)
     #print(f"total_iva: {total_iva}, total: {total}, coste_total: {coste_total}")

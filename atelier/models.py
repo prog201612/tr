@@ -651,7 +651,7 @@ class Notification(models.Model):
 
 class Ejercicio(models.Model):
     nombre = models.CharField(max_length=30)
-    anyo_inicial = models.IntegerField("año inicial", default=2015, validators = [MinValueValidator(2015)], unique=True)
+    anyo_inicial = models.IntegerField("año inicial", validators = [MinValueValidator(2015)], unique=True)
 
     def __str__(self) -> str:
         return self.nombre
